@@ -1,164 +1,243 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DSRT Editor - Animated Submenu</title>
-<style>
-:root{--accent:#00ffd5;--panel:#161b22}
-body{margin:0;font-family:Inter,system-ui,Arial;background:#0d1117;color:#eafaf9;display:flex;flex-direction:column;height:100vh;overflow-x:hidden}
-header{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:var(--panel);border-bottom:1px solid var(--accent)}
-header button{background:none;border:none;color:#ffcb05;font-size:1.4rem;cursor:pointer}
-main{flex:1;display:grid;grid-template-columns:70px 1fr 280px;grid-template-rows:1fr 36px;grid-template-areas:"sidebar canvas panel" "status status status";height:calc(100vh - 48px)}
-.sidebar{grid-area:sidebar;background:var(--panel);border-right:1px solid var(--accent);display:flex;flex-direction:column;align-items:center;padding:4px;gap:4px;overflow-y:auto;position:relative;z-index:200;transition:left 0.3s ease}
-.sidebar button{background:none;border:none;color:var(--accent);font-size:1.8rem;cursor:pointer;width:100%;text-align:left;transition:0.15s;display:flex;justify-content:space-between;align-items:center}
-.sidebar button:hover{color:#00e3be}
-.submenu{max-height:0;overflow:hidden;flex-direction:column;padding-left:12px;gap:2px;transition:max-height 0.3s ease}
-.submenu.open{max-height:1000px}
-.submenu button{text-align:left;font-size:1.2rem;padding:4px}
-.arrow{transition:transform 0.3s ease;display:inline-block;margin-left:6px;}
-.arrow.open{transform:rotate(90deg);}
-.panel{grid-area:panel;background:var(--panel);border-left:1px solid var(--accent);padding:12px;overflow:auto}
-.panel h3{color:var(--accent);margin:0 0 12px}
-.canvas-area{grid-area:canvas;display:flex;align-items:center;justify-content:center;padding:12px}
-canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;width:100%;max-width:960px;height:560px}
-.status{grid-area:status;background:#0d2a30;border-top:1px solid var(--accent);display:flex;justify-content:space-between;align-items:center;padding:0 12px;color:var(--accent)}
-@media(max-width:768px){
-  main{grid-template-columns:50px 1fr;grid-template-rows:1fr 36px;grid-template-areas:"canvas canvas" "status status"}
-  .sidebar{position:fixed;left:-200px;top:48px;width:200px;height:calc(100vh-48px);flex-direction:column;padding:8px;border-right:1px solid var(--accent);z-index:300}
-  .sidebar.show{left:0}
-  .canvas-area{padding:8px}
-  .panel{position:fixed;right:0;top:48px;width:200px;height:calc(100vh-48px);border-left:1px solid var(--accent);padding:8px;overflow:auto;background:var(--panel);z-index:300}
-}
-</style>
-</head>
-<body>
-<header>
-  <div>
-    <button onclick="toggleSidebar()">☰</button>
-    <input type="file" id="upload" style="display:none">
-    <button onclick="document.getElementById('upload').click()">📂</button>
-  </div>
-  <div>
-    <button onclick="undo()">Undo</button>
-    <button onclick="redo()">Redo</button>
-    <button onclick="saveImage()">Save</button>
-    <button onclick="exportImage()">Export</button>
-  </div>
-</header>
+import React, { useRef, useState, useEffect } from "react";
 
-<main>
-  <div class="sidebar" id="sidebar">
-    <!-- Basic -->
-    <button onclick="toggleSubmenuWithArrow('basicSub','basicArrow')">🛠️ Basic <span id="basicArrow" class="arrow">▶</span></button>
-    <div id="basicSub" class="submenu">
-      <button onclick="selectTool('Select')">Select</button>
-      <button onclick="selectTool('Crop')">Crop</button>
-      <button onclick="selectTool('Brush')">Brush</button>
-      <button onclick="selectTool('Eraser')">Eraser</button>
-      <button onclick="selectTool('Fill')">Fill</button>
-      <button onclick="selectTool('Text')">Text</button>
-      <button onclick="selectTool('Shapes')">Shapes</button>
-    </div>
+type Tool =
+  | "brush"
+  | "eraser"
+  | "text"
+  | "shapes"
+  | "rotate"
+  | "flip"
+  | "fill"
+  | "zoom"
+  | "filter"
+  | "adjust"
+  | "layers"
+  | "hd";
 
-    <!-- Transform -->
-    <button onclick="toggleSubmenuWithArrow('transformSub','transformArrow')">🔄 Transform <span id="transformArrow" class="arrow">▶</span></button>
-    <div id="transformSub" class="submenu">
-      <button onclick="selectTool('Resize')">Resize</button>
-      <button onclick="toggleSubmenuWithArrow('rotateSub','rotateArrow')">Rotate <span id="rotateArrow" class="arrow">▶</span></button>
-      <div id="rotateSub" class="submenu">
-        <button onclick="selectTool('Rotate 90°')">90°</button>
-        <button onclick="selectTool('Rotate 180°')">180°</button>
-        <button onclick="selectTool('Rotate 270°')">270°</button>
-        <button onclick="selectTool('Rotate 360°')">360°</button>
+type HistoryState = ImageData[];
+
+const EditorFinal: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [tool, setTool] = useState<Tool | null>(null);
+  const [brushColor, setBrushColor] = useState("#00ffd5");
+  const [brushSize, setBrushSize] = useState(10);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [lastPos, setLastPos] = useState<{ x: number; y: number } | null>(
+    null
+  );
+  const [rotation, setRotation] = useState(0);
+  const [brightness, setBrightness] = useState(100);
+  const [contrast, setContrast] = useState(100);
+  const [history, setHistory] = useState<HistoryState>([]);
+  const [historyStep, setHistoryStep] = useState(0);
+
+  // Save history
+  const saveHistory = () => {
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx || !canvasRef.current) return;
+    const imageData = ctx.getImageData(
+      0,
+      0,
+      canvasRef.current.width,
+      canvasRef.current.height
+    );
+    const newHistory = history.slice(0, historyStep);
+    newHistory.push(imageData);
+    setHistory(newHistory);
+    setHistoryStep(newHistory.length);
+  };
+
+  // Undo / Redo
+  const undo = () => {
+    if (historyStep <= 1) return;
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx || !canvasRef.current) return;
+    const prev = history[historyStep - 2];
+    ctx.putImageData(prev, 0, 0);
+    setHistoryStep(historyStep - 1);
+  };
+  const redo = () => {
+    if (historyStep >= history.length) return;
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx || !canvasRef.current) return;
+    const next = history[historyStep];
+    ctx.putImageData(next, 0, 0);
+    setHistoryStep(historyStep + 1);
+  };
+
+  // Start drawing
+  const startDraw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (tool !== "brush" && tool !== "eraser") return;
+    setIsDrawing(true);
+    const rect = canvasRef.current!.getBoundingClientRect();
+    setLastPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+  const endDraw = () => {
+    if (isDrawing) saveHistory();
+    setIsDrawing(false);
+    setLastPos(null);
+  };
+  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || !canvasRef.current || !lastPos) return;
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    ctx.strokeStyle = tool === "eraser" ? "#0d1117" : brushColor;
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(lastPos.x, lastPos.y);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    setLastPos({ x, y });
+  };
+
+  // Rotate
+  const applyRotation = (angle: number) => {
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) return;
+    const temp = ctx.getImageData(
+      0,
+      0,
+      canvasRef.current.width,
+      canvasRef.current.height
+    );
+    const offCanvas = document.createElement("canvas");
+    offCanvas.width = temp.width;
+    offCanvas.height = temp.height;
+    offCanvas.getContext("2d")!.putImageData(temp, 0, 0);
+    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    ctx.save();
+    ctx.translate(canvasRef.current.width / 2, canvasRef.current.height / 2);
+    ctx.rotate(((rotation + angle) * Math.PI) / 180);
+    ctx.drawImage(offCanvas, -canvasRef.current.width / 2, -canvasRef.current.height / 2);
+    ctx.restore();
+    setRotation(rotation + angle);
+    saveHistory();
+  };
+
+  // Filters
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) return;
+    ctx.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+  }, [brightness, contrast]);
+
+  // Export
+  const exportImage = () => {
+    if (!canvasRef.current) return;
+    const data = canvasRef.current.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = data;
+    link.download = "dsrt-export.png";
+    link.click();
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row h-screen bg-[#0b1520] text-[#00ffd5]">
+      {/* Sidebar */}
+      <div className="w-20 md:w-28 bg-[#161b22] flex flex-col p-2 gap-2 overflow-y-auto">
+        <button onClick={() => setTool("brush")}>🖌️</button>
+        <button onClick={() => setTool("eraser")}>🩹</button>
+        <button onClick={() => setTool("rotate")}>🔄</button>
+        <button onClick={() => setTool("flip")}>↕️</button>
+        <button onClick={() => setTool("fill")}>🪣</button>
+        <button onClick={() => setTool("filter")}>🎨</button>
+        <button onClick={() => setTool("text")}>🔤</button>
+        <button onClick={() => setTool("shapes")}>⬛</button>
+        <button onClick={() => setTool("layers")}>📑</button>
+        <button onClick={() => setTool("hd")}>HD</button>
       </div>
-      <button onclick="toggleSubmenuWithArrow('flipSub','flipArrow')">Flip <span id="flipArrow" class="arrow">▶</span></button>
-      <div id="flipSub" class="submenu">
-        <button onclick="selectTool('Flip Horizontal')">Horizontal</button>
-        <button onclick="selectTool('Flip Vertical')">Vertical</button>
+
+      {/* Canvas */}
+      <div className="flex-1 flex flex-col items-center justify-center p-3 relative">
+        <canvas
+          ref={canvasRef}
+          width={960}
+          height={560}
+          className="bg-[#112d38] border-2 border-dashed border-[#00ffd5] rounded-xl w-full max-w-[960px]"
+          onMouseDown={startDraw}
+          onMouseUp={endDraw}
+          onMouseOut={endDraw}
+          onMouseMove={draw}
+        />
+
+        {/* Brush Controls */}
+        {tool === "brush" && (
+          <div className="flex gap-2 mt-2">
+            <label>
+              Brush Size:
+              <input
+                type="range"
+                min={1}
+                max={50}
+                value={brushSize}
+                onChange={(e) => setBrushSize(Number(e.target.value))}
+              />
+            </label>
+            <label>
+              Color:
+              <input
+                type="color"
+                value={brushColor}
+                onChange={(e) => setBrushColor(e.target.value)}
+              />
+            </label>
+          </div>
+        )}
+
+        {/* Rotate Controls */}
+        {tool === "rotate" && (
+          <div className="flex gap-2 mt-2">
+            <button onClick={() => applyRotation(90)}>90°</button>
+            <button onClick={() => applyRotation(180)}>180°</button>
+            <button onClick={() => applyRotation(270)}>270°</button>
+          </div>
+        )}
+
+        {/* Filter Controls */}
+        {tool === "filter" && (
+          <div className="flex gap-2 mt-2">
+            <label>
+              Brightness:
+              <input
+                type="range"
+                min={0}
+                max={200}
+                value={brightness}
+                onChange={(e) => setBrightness(Number(e.target.value))}
+              />
+            </label>
+            <label>
+              Contrast:
+              <input
+                type="range"
+                min={0}
+                max={200}
+                value={contrast}
+                onChange={(e) => setContrast(Number(e.target.value))}
+              />
+            </label>
+          </div>
+        )}
       </div>
-      <button onclick="selectTool('Zoom')">Zoom</button>
+
+      {/* Panel */}
+      <aside className="w-72 bg-[#161b22] p-3 border-l border-[#00ffd5] overflow-auto">
+        <h3 className="text-lg font-semibold mb-2">Properti</h3>
+        {tool ? <p>Pengaturan <b>{tool}</b> muncul di sini.</p> : <p>Pilih tool.</p>}
+        <div className="flex gap-2 mt-2">
+          <button onClick={undo}>Undo</button>
+          <button onClick={redo}>Redo</button>
+          <button onClick={exportImage}>Export</button>
+        </div>
+      </aside>
     </div>
+  );
+};
 
-    <!-- Effects -->
-    <button onclick="toggleSubmenuWithArrow('effectsSub','effectsArrow')">🎨 Effects <span id="effectsArrow" class="arrow">▶</span></button>
-    <div id="effectsSub" class="submenu">
-      <button onclick="selectTool('B/W')">B/W</button>
-      <button onclick="selectTool('Sepia')">Sepia</button>
-      <button onclick="selectTool('Vintage')">Vintage</button>
-      <button onclick="selectTool('HDR')">HDR</button>
-      <button onclick="selectTool('Cinematic')">Cinematic</button>
-      <button onclick="selectTool('Brightness')">Brightness</button>
-      <button onclick="selectTool('Contrast')">Contrast</button>
-      <button onclick="selectTool('Saturation')">Saturation</button>
-      <button onclick="selectTool('Gradient')">Gradient</button>
-    </div>
-
-    <!-- Layers -->
-    <button onclick="toggleSubmenuWithArrow('layersSub','layersArrow')">📑 Layers <span id="layersArrow" class="arrow">▶</span></button>
-    <div id="layersSub" class="submenu">
-      <button onclick="selectTool('Layers')">Layers</button>
-      <button onclick="selectTool('Group')">Group</button>
-      <button onclick="selectTool('Lock')">Lock</button>
-      <button onclick="selectTool('Duplicate')">Duplicate</button>
-      <button onclick="selectTool('Delete')">Delete</button>
-    </div>
-
-    <!-- Premium -->
-    <button onclick="toggleSubmenuWithArrow('premiumSub','premiumArrow')">🌟 Premium <span id="premiumArrow" class="arrow">▶</span></button>
-    <div id="premiumSub" class="submenu">
-      <button onclick="selectTool('2K Upscale')">2K Upscale</button>
-      <button onclick="selectTool('4K Upscale')">4K Upscale</button>
-      <button onclick="selectTool('8K Upscale')">8K Upscale</button>
-      <button onclick="selectTool('RAW Original')">RAW Original</button>
-      <button onclick="selectTool('AI Generative 1')">AI 1</button>
-      <button onclick="selectTool('AI Generative 2')">AI 2</button>
-      <button onclick="selectTool('Style Transfer')">Style Transfer</button>
-      <button onclick="selectTool('Export JPG')">Export JPG</button>
-      <button onclick="selectTool('Export PNG')">Export PNG</button>
-      <button onclick="selectTool('HD 1280x720')">HD</button>
-      <button onclick="selectTool('Full HD 1920x1080')">Full HD</button>
-      <button onclick="selectTool('4K 3840x2160')">4K</button>
-      <button onclick="selectTool('8K 7680x4320')">8K</button>
-      <button onclick="selectTool('Stickers')">Stickers</button>
-      <button onclick="selectTool('Elements')">Elements</button>
-    </div>
-  </div>
-
-  <div class="canvas-area">
-    <canvas id="canvasPhoto" width="960" height="560"></canvas>
-  </div>
-
-  <aside class="panel">
-    <h3 id="panel-title">Properti</h3>
-    <div id="panel-content">Pilih tool untuk melihat pengaturan.</div>
-  </aside>
-
-  <div class="status">
-    <span id="status-res">Resolusi: 960x560</span>
-    <span id="status-zoom">Zoom:100%</span>
-  </div>
-</main>
-
-<script>
-function toggleSidebar(){
-  document.getElementById('sidebar').classList.toggle('show');
-}
-function toggleSubmenuWithArrow(subId, arrowId){
-  const submenu = document.getElementById(subId);
-  const arrow = document.getElementById(arrowId);
-  submenu.classList.toggle('open');
-  arrow.classList.toggle('open');
-}
-function selectTool(name){
-  document.getElementById('panel-title').textContent = "Properti: " + name;
-  document.getElementById('panel-content').innerHTML = `<p>Pengaturan untuk <b>${name}</b> akan muncul di sini.</p>`;
-  if(window.innerWidth <= 768){ document.getElementById('sidebar').classList.remove('show'); }
-}
-function undo(){alert("Undo belum aktif");}
-function redo(){alert("Redo belum aktif");}
-function saveImage(){alert("Save belum aktif");}
-function exportImage(){alert("Export belum aktif");}
-</script>
-</body>
-</html>
+export default EditorFinal;
