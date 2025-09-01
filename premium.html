@@ -1,17 +1,156 @@
 <!DOCTYPE html>
 <html lang="id">
-<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Premium — DSRT</title>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DSRT Premium</title>
 <style>
-html,body{height:100%}body{margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(135deg,#0f2027,#203a43);color:#eafaf9;display:flex;flex-direction:column}
-header{height:48px;display:flex;align-items:center;padding:0 12px;background:#161b22;border-bottom:1px solid #00ffd5}
-header button{background:none;border:none;color:#ffcb05;font-size:1.4rem;cursor:pointer}
-main{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
-.card{background:linear-gradient(135deg,#16222A,#3A6073);padding:28px;border-radius:14px;border:2px solid #00ffd5;max-width:800px;width:100%;text-align:center}
-.btn{background:#00ffd5;color:#001f27;padding:12px 22px;border-radius:12px;text-decoration:none;font-weight:700}
+  :root {
+    --accent: #00ffd5;
+    --card-bg: #0d2a30;
+    --bg: #041017;
+    --text-light: #cde9e9;
+    --btn-bg: #ffcb05;
+  }
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 14px;
+    border-bottom: 2px solid var(--accent);
+    background: #0d2a30;
+  }
+  header button {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    color: var(--accent);
+    cursor: pointer;
+  }
+  main {
+    flex: 1;
+    display: grid;
+    gap: 18px;
+    padding: 20px;
+  }
+  .plan {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 18px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: .2s;
+  }
+  .plan:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+  }
+  .plan h2 {
+    margin: 0 0 10px;
+    font-size: 1.3rem;
+    color: var(--accent);
+  }
+  .price {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin: 8px 0 14px;
+  }
+  ul.features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 14px;
+    text-align: left;
+    color: var(--text-light);
+  }
+  ul.features li { margin-bottom: 6px; }
+  .select-btn {
+    background: var(--btn-bg);
+    border: none;
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  footer {
+    padding: 12px;
+    text-align: center;
+    border-top: 2px solid var(--accent);
+    background: #0d2a30;
+  }
+  footer button {
+    background: var(--btn-bg);
+    border: none;
+    border-radius: 16px;
+    padding: 12px 24px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    main { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 769px) {
+    main { grid-template-columns: repeat(3, 1fr); }
+  }
 </style>
 </head>
 <body>
-<header><button onclick="location.href='home.html'">✕</button></header>
-<main><div class="card"><h2 style="color:#00ffd5;margin:0 0 8px">Premium Plan</h2><p style="margin:0 0 18px">Paket premium: akses tanpa batas, watermark off, priority render.</p><a class="btn" href="#">Upgrade Sekarang</a></div></main>
+  <header>
+    <button onclick="goBack()">✕</button>
+  </header>
+  <main>
+    <div class="plan">
+      <h2>Basic</h2>
+      <div class="price">Rp 49.000/bln</div>
+      <ul class="features">
+        <li>✔ Akses fitur dasar</li>
+        <li>✔ Edit foto & video terbatas</li>
+        <li>✔ Penyimpanan 2GB</li>
+      </ul>
+      <button class="select-btn">Pilih Basic</button>
+    </div>
+    <div class="plan">
+      <h2>Pro</h2>
+      <div class="price">Rp 99.000/bln</div>
+      <ul class="features">
+        <li>✔ Semua fitur Basic</li>
+        <li>✔ Unlimited edit</li>
+        <li>✔ Penyimpanan 20GB</li>
+        <li>✔ Akses Premium Template</li>
+      </ul>
+      <button class="select-btn">Pilih Pro</button>
+    </div>
+    <div class="plan">
+      <h2>Enterprise</h2>
+      <div class="price">Rp 199.000/bln</div>
+      <ul class="features">
+        <li>✔ Semua fitur Pro</li>
+        <li>✔ Penyimpanan 100GB</li>
+        <li>✔ Dukungan Prioritas 24/7</li>
+        <li>✔ Kolaborasi Tim</li>
+      </ul>
+      <button class="select-btn">Pilih Enterprise</button>
+    </div>
+  </main>
+  <footer>
+    <button>Konfirmasi Upgrade</button>
+  </footer>
+  <script>
+    function goBack() {
+      window.location.href = "profile.html";
+    }
+  </script>
 </body>
 </html>
