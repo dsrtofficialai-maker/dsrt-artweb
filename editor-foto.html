@@ -1,183 +1,65 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Editor Foto — DSRT</title>
 <style>
-  body {
-    margin:0;
-    font-family:'Inter',sans-serif;
-    background:#0d1117;
-    color:#eafaf9;
-    height:100vh;
-    display:flex;
-    flex-direction:column;
-  }
-
-  /* HEADER */
-  header {
-    height:48px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 12px;
-    background:#161b22;
-    border-bottom:1px solid #00ffd5;
-  }
-  header button {
-    background:none; border:none; font-size:1.6rem;
-    color:#ffcb05; cursor:pointer;
-  }
-  header .action {
-    background:none; border:none; color:#00ffd5;
-    font-size:.9rem; cursor:pointer; margin-left:8px;
-  }
-
-  /* MAIN GRID DEFAULT (Desktop) */
-  main {
-    flex:1;
-    display:grid;
-    grid-template-columns:60px 1fr 260px;
-    grid-template-rows:1fr 36px;
-    grid-template-areas:
-      "sidebar canvas panel"
-      "status status status";
-    height:calc(100vh - 48px);
-  }
-
-  /* SIDEBAR TOOLS */
-  .sidebar {
-    grid-area:sidebar;
-    background:#161b22;
-    border-right:1px solid #00ffd5;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding:10px 0;
-    gap:14px;
-  }
-  .sidebar button {
-    background:none; border:none; color:#00ffd5;
-    font-size:1.2rem; cursor:pointer;
-  }
-
-  /* CANVAS */
-  .canvas-area {
-    grid-area:canvas;
-    display:flex; justify-content:center; align-items:center;
-    background:#0b1520;
-  }
-  canvas {
-    background:#112d38;
-    border:2px dashed #00ffd5;
-    border-radius:12px;
-    width:100%;
-    max-width:900px;
-    height:500px;
-  }
-
-  /* PROPERTIES PANEL */
-  .panel {
-    grid-area:panel;
-    background:#161b22;
-    border-left:1px solid #00ffd5;
-    padding:12px;
-    overflow-y:auto;
-  }
-  .panel h3 {margin:0 0 12px;color:#00ffd5;}
-  .panel label {display:block;margin:10px 0 4px;}
-  .panel input {width:100%;padding:6px;border-radius:6px;border:1px solid #00ffd5;background:#0d2a30;color:#fff;}
-
-  /* STATUS BAR */
-  .status {
-    grid-area:status;
-    background:#0d2a30;
-    border-top:1px solid #00ffd5;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:0 12px;
-    font-size:.85rem;
-    color:#00ffd5;
-  }
-
-  /* === MOBILE ADAPTASI === */
-  @media (max-width:768px){
-    main {
-      grid-template-columns:1fr;
-      grid-template-rows:1fr 60px 200px 36px;
-      grid-template-areas:
-        "canvas"
-        "toolbar"
-        "panel"
-        "status";
-    }
-    .sidebar {
-      grid-area:toolbar;
-      flex-direction:row;
-      justify-content:space-around;
-      border-right:none;
-      border-top:1px solid #00ffd5;
-      padding:8px 0;
-    }
-    .panel {
-      grid-area:panel;
-      border-left:none;
-      border-top:1px solid #00ffd5;
-      display:block;
-    }
-    canvas {
-      width:100%; height:100%; max-width:none; max-height:none;
-    }
-  }
-
-  /* === PC BESAR === */
-  @media (min-width:1280px){
-    main { grid-template-columns:80px 1fr 320px; }
-    .panel { padding:20px; }
-    canvas { max-width:1100px; height:650px; }
-  }
+:root{--accent:#00ffd5;--bg:#0b1520;--panel:#161b22}
+html,body{height:100%}
+body{margin:0;font-family:Inter,system-ui,Arial;background:#0d1117;color:#eafaf9;display:flex;flex-direction:column;height:100dvh}
+header{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:var(--panel);border-bottom:1px solid var(--accent)}
+header .left{display:flex;align-items:center;gap:10px}
+header button{background:none;border:none;color:#ffcb05;font-size:1.4rem;cursor:pointer}
+header .actions button{background:none;border:none;color:var(--accent);margin-left:8px;cursor:pointer}
+main{flex:1;display:grid;grid-template-columns:60px 1fr 260px;grid-template-rows:1fr 36px;grid-template-areas:"sidebar canvas panel" "status status status";height:calc(100vh - 48px)}
+.sidebar{grid-area:sidebar;background:var(--panel);border-right:1px solid var(--accent);display:flex;flex-direction:column;align-items:center;padding:10px 6px;gap:12px}
+.sidebar button{background:none;border:none;color:var(--accent);font-size:1.2rem;cursor:pointer}
+.canvas-area{grid-area:canvas;display:flex;align-items:center;justify-content:center;background:#071017;padding:12px}
+canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;width:100%;max-width:960px;height:560px}
+.panel{grid-area:panel;background:var(--panel);border-left:1px solid var(--accent);padding:12px;overflow:auto}
+.panel h3{color:var(--accent);margin:0 0 12px}
+.status{grid-area:status;background:#0d2a30;border-top:1px solid var(--accent);display:flex;justify-content:space-between;align-items:center;padding:0 12px;color:var(--accent)}
+/* MOBILE */
+@media(max-width:768px){
+  main{grid-template-columns:1fr;grid-template-rows:1fr 60px 220px 36px;grid-template-areas:"canvas" "toolbar" "panel" "status"}
+  .sidebar{grid-area:toolbar;flex-direction:row;justify-content:space-around;border-right:none;border-top:1px solid var(--accent);padding:8px}
+  .panel{grid-area:panel;border-left:none;border-top:1px solid var(--accent);height:220px}
+  canvas{height:100%;max-width:none}
+}
+/* LARGE */
+@media(min-width:1280px){canvas{max-width:1100px;height:680px}.panel{padding:18px}}
 </style>
 </head>
 <body>
-  <header>
-    <button onclick="window.location.href='home.html'">✕</button>
-    <div>
-      <button class="action">Undo</button>
-      <button class="action">Redo</button>
-      <button class="action">Save</button>
-      <button class="action">Export</button>
-    </div>
-  </header>
+<header>
+  <div class="left"><button onclick="location.href='home.html'">✕</button></div>
+  <div class="actions">
+    <button>Undo</button><button>Redo</button><button>Save</button><button>Export</button>
+  </div>
+</header>
 
-  <main>
-    <div class="sidebar">
-      <button title="Select">🖱️</button>
-      <button title="Crop">✂️</button>
-      <button title="Brush">🖌️</button>
-      <button title="Text">🔤</button>
-      <button title="Shapes">⬛</button>
-    </div>
+<main>
+  <div class="sidebar" aria-hidden="true">
+    <button title="Select">🖱️</button>
+    <button title="Crop">✂️</button>
+    <button title="Brush">🖌️</button>
+    <button title="Text">🔤</button>
+    <button title="Shapes">⬛</button>
+  </div>
 
-    <div class="canvas-area">
-      <canvas id="editorCanvas"></canvas>
-    </div>
+  <div class="canvas-area">
+    <canvas id="canvasPhoto" aria-label="Editor Foto"></canvas>
+  </div>
 
-    <div class="panel">
-      <h3>Properti</h3>
-      <label>Warna</label>
-      <input type="color" value="#00ffd5">
-      <label>Ukuran Brush</label>
-      <input type="range" min="1" max="50" value="10">
-      <label>Opacity</label>
-      <input type="range" min="0" max="100" value="100">
-    </div>
+  <aside class="panel" aria-label="Properti">
+    <h3>Properti</h3>
+    <label>Warna</label><input type="color" value="#00ffd5">
+    <label>Ukuran Brush</label><input type="range" min="1" max="50" value="10">
+    <label>Opacity</label><input type="range" min="0" max="100" value="100">
+  </aside>
 
-    <div class="status">
-      <span>Resolusi: 1920x1080</span>
-      <span>Zoom: 100%</span>
-    </div>
-  </main>
+  <div class="status"><span>Resolusi: 1920x1080</span><span>Zoom:100%</span></div>
+</main>
 </body>
 </html>
