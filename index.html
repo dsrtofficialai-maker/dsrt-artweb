@@ -8,97 +8,147 @@
   :root {
     --accent:#00ffd5;
     --text-light:#cde9e9;
+    --card-bg:#0d2a30;
   }
+
+  /* Layout dasar: footer selalu menempel di bawah */
+  html, body { height:100%; }
   body {
     margin:0;
     font-family:'Inter',system-ui,Arial;
     background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    color:white;
+    color:#fff;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    overflow-x:hidden;
   }
+  main { flex:1; position:relative; z-index:1; }
+
+  /* BG animasi hujan (dikembalikan) */
+  .hero-bg{
+    position:fixed; inset:0;
+    z-index:0; pointer-events:none; overflow:hidden;
+  }
+  .line{
+    position:absolute; top:-150vh;
+    width:2px; background:rgba(0,255,213,.28);
+    animation:fall 6s linear infinite;
+    filter:drop-shadow(0 0 6px rgba(0,255,213,.35));
+  }
+  .line.l1{ left:15%; height:140vh; animation-delay:0s;}
+  .line.l2{ left:38%; height:120vh; animation-delay:1.5s;}
+  .line.l3{ left:61%; height:160vh; animation-delay:3s;}
+  .line.l4{ left:84%; height:130vh; animation-delay:4.5s;}
+  @keyframes fall{
+    to{ transform:translateY(300vh); }
+  }
+
   header {
     text-align:center;
     padding:20px;
     border-bottom:2px solid var(--accent);
+    position:relative; z-index:1;
+    background:linear-gradient(135deg,rgba(4,16,23,.7),rgba(4,16,23,.2));
+    backdrop-filter:saturate(140%) blur(2px);
   }
-  header h1 {margin:0;font-size:1.8rem;color:var(--accent);}
-  section.hero {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:80px 20px 60px;
+  header h1 { margin:0; font-size:1.8rem; color:var(--accent); }
+
+  section.hero{
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    padding:72px 20px 48px;
   }
-  section.hero h2 {font-size:2rem;margin:0;color:var(--accent);}
-  section.hero p {font-size:1.1rem;max-width:700px;margin:20px auto;}
-  .cta {
-    background:var(--accent);
-    color:#001f27;
-    border:none;
-    border-radius:14px;
-    padding:12px 28px;
-    font-weight:bold;
-    cursor:pointer;
-    font-size:1.1rem;
-    text-decoration:none;
+  section.hero h2{ font-size:2rem; margin:0; color:var(--accent); }
+  section.hero p{ font-size:1.1rem; max-width:720px; margin:16px auto 22px; color:var(--text-light); }
+  .cta{
+    background:var(--accent); color:#001f27; font-weight:800;
+    padding:12px 28px; border-radius:14px; text-decoration:none; display:inline-block;
   }
-  section.features {
-    padding:40px 20px;
-    max-width:1200px;
+
+  section.features{
+    padding:28px 20px 48px;
     margin:0 auto;
+    max-width:1200px;
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
     gap:20px;
   }
-  .feature {
-    background:#0d2a30;
-    padding:20px;
-    border-radius:14px;
+  .feature{
+    background:var(--card-bg);
     border:2px solid var(--accent);
+    border-radius:14px;
+    padding:20px;
     text-align:center;
   }
-  .feature h3 {margin:10px 0;color:var(--accent);}
-  .feature p {color:var(--text-light);}
-  footer {
-    text-align:center;
-    padding:16px;
+  .feature-icon{ font-size:42px; margin-bottom:10px; display:block; }
+  .feature h3{ margin:6px 0 6px; color:var(--accent); }
+  .feature p{ margin:0; color:var(--text-light); }
+
+  footer{
+    text-align:center; padding:14px;
     border-top:2px solid var(--accent);
-    background:#001f27;
-    color:var(--accent);
+    background:#001f27; color:var(--accent);
+    position:relative; z-index:1;
   }
-  @media (min-width:1024px) {
-    section.hero {padding:100px 80px 80px;}
-    section.features {max-width:100%;padding:0 80px;}
+
+  /* Desktop – lebar penuh rapi, tanpa ruang kosong berlebih */
+  @media (min-width:1024px){
+    section.hero{ padding:100px 80px 70px; }
+    section.features{ max-width:100%; padding:0 80px 80px; gap:24px; }
+    .feature{ padding:24px; }
+  }
+
+  /* Mobile kecil */
+  @media (max-width:480px){
+    .feature{ padding:16px; }
+    .feature-icon{ font-size:34px; }
   }
 </style>
 </head>
 <body>
+  <!-- BG animasi hujan -->
+  <div class="hero-bg" aria-hidden="true">
+    <span class="line l1"></span>
+    <span class="line l2"></span>
+    <span class="line l3"></span>
+    <span class="line l4"></span>
+  </div>
+
   <header>
-    <h1>DSRT - Digital Smart Revise Technology</h1>
+    <h1>DSRT – Digital Smart Revise Technology</h1>
   </header>
-  <section class="hero">
-    <h2>Transformasi Digital dengan DSRT</h2>
-    <p>Solusi editing modern mulai dari foto, video, logo, hingga remove background secara cepat dan cerdas.</p>
-    <a href="home.html" class="cta">Coba Sekarang</a>
-  </section>
-  <section class="features">
-    <div class="feature">
-      <h3>Foto</h3>
-      <p>Edit dan optimasi gambar dengan mudah.</p>
-    </div>
-    <div class="feature">
-      <h3>Video</h3>
-      <p>Editing video cepat dan profesional.</p>
-    </div>
-    <div class="feature">
-      <h3>Logo</h3>
-      <p>Buat dan sesuaikan logo modern.</p>
-    </div>
-    <div class="feature">
-      <h3>Remove BG</h3>
-      <p>Hapus background otomatis dengan AI.</p>
-    </div>
-  </section>
+
+  <main>
+    <section class="hero" aria-labelledby="title">
+      <h2 id="title">Transformasi Digital dengan DSRT</h2>
+      <p>Solusi editing modern mulai dari foto, video, logo, hingga remove background secara cepat dan cerdas.</p>
+      <a href="home.html" class="cta">Coba Sekarang</a>
+    </section>
+
+    <section class="features" aria-label="Fitur Unggulan">
+      <article class="feature">
+        <span class="feature-icon">🖼️</span>
+        <h3>Foto</h3>
+        <p>Edit dan optimasi gambar dengan mudah.</p>
+      </article>
+      <article class="feature">
+        <span class="feature-icon">🎬</span>
+        <h3>Video</h3>
+        <p>Editing video cepat dan profesional.</p>
+      </article>
+      <article class="feature">
+        <span class="feature-icon">🎨</span>
+        <h3>Logo</h3>
+        <p>Buat dan sesuaikan logo modern.</p>
+      </article>
+      <article class="feature">
+        <span class="feature-icon">✂️</span>
+        <h3>Remove BG</h3>
+        <p>Hapus background otomatis dengan AI.</p>
+      </article>
+    </section>
+  </main>
+
   <footer>&copy; 2025 DSRT. All rights reserved.</footer>
 </body>
 </html>
