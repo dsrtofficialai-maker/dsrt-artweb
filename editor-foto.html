@@ -1,243 +1,181 @@
-import React, { useRef, useState, useEffect } from "react";
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSRT Editor Full</title>
+<style>
+:root{--accent:#00ffd5;--bg:#0b1520;--panel:#161b22;--card:#0d2a30;--muted:#cde9e9;--footer:#001f27;}
+body{margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:var(--muted);}
+#dashboard,#editor{width:100vw;height:100vh;display:flex;flex-direction:column;}
+#dashboard{align-items:center;justify-content:flex-start;padding:20px;overflow:auto;}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;width:100%;max-width:1200px;}
+.card{background:var(--card);border:2px solid var(--accent);border-radius:14px;padding:18px;text-align:center;color:var(--muted);cursor:pointer;}
+.card .icon{font-size:40px;margin-bottom:8px;color:var(--accent);}
+.premium{max-width:900px;width:100%;background:linear-gradient(135deg,#16222A,#3A6073);border:2px solid var(--accent);padding:24px;border-radius:16px;text-align:center;margin-top:20px;}
+.premium .btn{background:var(--accent);color:#001f27;padding:10px 22px;border-radius:12px;font-weight:700;}
+#editor{display:none;flex-direction:row;}
+.sidebar{width:70px;background:var(--panel);display:flex;flex-direction:column;align-items:center;padding:6px;gap:10px;overflow-y:auto;}
+.sidebar button{background:none;border:none;color:var(--accent);font-size:1.5rem;transition:transform .15s;}
+.sidebar button:hover{transform:scale(1.2);color:#00e3be;}
+.canvas-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;background:#071017;}
+canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;width:960px;height:560px;}
+.panel{width:280px;background:var(--panel);border-left:1px solid var(--accent);padding:12px;overflow:auto;}
+.panel h3{color:var(--accent);margin:0 0 12px;}
+.panel input[type="range"]{width:100%;}
+#status{background:#0d2a30;border-top:1px solid var(--accent);color:var(--accent);padding:6px 12px;}
+@media(max-width:768px){
+#editor{flex-direction:column;}
+.sidebar{flex-direction:row;width:100%;height:60px;}
+.panel{width:100%;border-left:none;border-top:1px solid var(--accent);height:220px;}
+canvas{width:100%;max-width:none;height:auto;}
+}
+</style>
+</head>
+<body>
 
-type Tool =
-  | "brush"
-  | "eraser"
-  | "text"
-  | "shapes"
-  | "rotate"
-  | "flip"
-  | "fill"
-  | "zoom"
-  | "filter"
-  | "adjust"
-  | "layers"
-  | "hd";
+<div id="dashboard">
+  <h1 style="color:var(--accent);">DSRT Dashboard</h1>
+  <div class="features">
+    <div class="card" onclick="openEditor()">🖼️<br>Editing Foto</div>
+    <div class="card">🎬<br>Editing Video</div>
+    <div class="card">🎨<br>Editing Logo</div>
+    <div class="card">✂️<br>Remove Background</div>
+  </div>
+  <div class="premium">
+    <h2>Upgrade ke Premium 🚀</h2>
+    <button class="btn">Upgrade</button>
+  </div>
+</div>
 
-type HistoryState = ImageData[];
+<div id="editor">
+  <div class="sidebar">
+    <button onclick="backDashboard()">⬅️</button>
+    <!-- Dasar -->
+    <button onclick="setTool('select')">🖱️</button>
+    <button onclick="setTool('crop')">✂️</button>
+    <button onclick="setTool('brush')">🖌️</button>
+    <button onclick="setTool('eraser')">🩹</button>
+    <button onclick="setTool('fill')">🪣</button>
+    <button onclick="setTool('text')">🔤</button>
+    <button onclick="setTool('shapes')">⬛</button>
+    <!-- Transformasi -->
+    <button onclick="setTool('resize')">↔️</button>
+    <button onclick="setTool('rotate')">🔄</button>
+    <button onclick="setTool('flip')">↕️</button>
+    <button onclick="setTool('zoom')">🔍</button>
+    <!-- Efek -->
+    <button onclick="setTool('filter')">🎨</button>
+    <button onclick="setTool('adjust')">🌈</button>
+    <button onclick="setTool('gradient')">🟦</button>
+    <!-- Layer -->
+    <button onclick="setTool('layers')">📑</button>
+    <button onclick="setTool('group')">📦</button>
+    <button onclick="setTool('lock')">🔒</button>
+    <button onclick="setTool('duplicate')">📄</button>
+    <button onclick="setTool('delete')">🗑️</button>
+    <!-- Tambahan -->
+    <button onclick="setTool('ai')">🤖</button>
+    <button onclick="setTool('stickers')">⭐</button>
+    <button onclick="setTool('elements')">📐</button>
+    <button onclick="toggleHD()">HD</button>
+  </div>
 
-const EditorFinal: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [tool, setTool] = useState<Tool | null>(null);
-  const [brushColor, setBrushColor] = useState("#00ffd5");
-  const [brushSize, setBrushSize] = useState(10);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [lastPos, setLastPos] = useState<{ x: number; y: number } | null>(
-    null
-  );
-  const [rotation, setRotation] = useState(0);
-  const [brightness, setBrightness] = useState(100);
-  const [contrast, setContrast] = useState(100);
-  const [history, setHistory] = useState<HistoryState>([]);
-  const [historyStep, setHistoryStep] = useState(0);
-
-  // Save history
-  const saveHistory = () => {
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx || !canvasRef.current) return;
-    const imageData = ctx.getImageData(
-      0,
-      0,
-      canvasRef.current.width,
-      canvasRef.current.height
-    );
-    const newHistory = history.slice(0, historyStep);
-    newHistory.push(imageData);
-    setHistory(newHistory);
-    setHistoryStep(newHistory.length);
-  };
-
-  // Undo / Redo
-  const undo = () => {
-    if (historyStep <= 1) return;
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx || !canvasRef.current) return;
-    const prev = history[historyStep - 2];
-    ctx.putImageData(prev, 0, 0);
-    setHistoryStep(historyStep - 1);
-  };
-  const redo = () => {
-    if (historyStep >= history.length) return;
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx || !canvasRef.current) return;
-    const next = history[historyStep];
-    ctx.putImageData(next, 0, 0);
-    setHistoryStep(historyStep + 1);
-  };
-
-  // Start drawing
-  const startDraw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (tool !== "brush" && tool !== "eraser") return;
-    setIsDrawing(true);
-    const rect = canvasRef.current!.getBoundingClientRect();
-    setLastPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
-  const endDraw = () => {
-    if (isDrawing) saveHistory();
-    setIsDrawing(false);
-    setLastPos(null);
-  };
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !canvasRef.current || !lastPos) return;
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx) return;
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    ctx.strokeStyle = tool === "eraser" ? "#0d1117" : brushColor;
-    ctx.lineWidth = brushSize;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(lastPos.x, lastPos.y);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    setLastPos({ x, y });
-  };
-
-  // Rotate
-  const applyRotation = (angle: number) => {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx) return;
-    const temp = ctx.getImageData(
-      0,
-      0,
-      canvasRef.current.width,
-      canvasRef.current.height
-    );
-    const offCanvas = document.createElement("canvas");
-    offCanvas.width = temp.width;
-    offCanvas.height = temp.height;
-    offCanvas.getContext("2d")!.putImageData(temp, 0, 0);
-    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    ctx.save();
-    ctx.translate(canvasRef.current.width / 2, canvasRef.current.height / 2);
-    ctx.rotate(((rotation + angle) * Math.PI) / 180);
-    ctx.drawImage(offCanvas, -canvasRef.current.width / 2, -canvasRef.current.height / 2);
-    ctx.restore();
-    setRotation(rotation + angle);
-    saveHistory();
-  };
-
-  // Filters
-  useEffect(() => {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx) return;
-    ctx.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
-  }, [brightness, contrast]);
-
-  // Export
-  const exportImage = () => {
-    if (!canvasRef.current) return;
-    const data = canvasRef.current.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = data;
-    link.download = "dsrt-export.png";
-    link.click();
-  };
-
-  return (
-    <div className="flex flex-col md:flex-row h-screen bg-[#0b1520] text-[#00ffd5]">
-      {/* Sidebar */}
-      <div className="w-20 md:w-28 bg-[#161b22] flex flex-col p-2 gap-2 overflow-y-auto">
-        <button onClick={() => setTool("brush")}>🖌️</button>
-        <button onClick={() => setTool("eraser")}>🩹</button>
-        <button onClick={() => setTool("rotate")}>🔄</button>
-        <button onClick={() => setTool("flip")}>↕️</button>
-        <button onClick={() => setTool("fill")}>🪣</button>
-        <button onClick={() => setTool("filter")}>🎨</button>
-        <button onClick={() => setTool("text")}>🔤</button>
-        <button onClick={() => setTool("shapes")}>⬛</button>
-        <button onClick={() => setTool("layers")}>📑</button>
-        <button onClick={() => setTool("hd")}>HD</button>
-      </div>
-
-      {/* Canvas */}
-      <div className="flex-1 flex flex-col items-center justify-center p-3 relative">
-        <canvas
-          ref={canvasRef}
-          width={960}
-          height={560}
-          className="bg-[#112d38] border-2 border-dashed border-[#00ffd5] rounded-xl w-full max-w-[960px]"
-          onMouseDown={startDraw}
-          onMouseUp={endDraw}
-          onMouseOut={endDraw}
-          onMouseMove={draw}
-        />
-
-        {/* Brush Controls */}
-        {tool === "brush" && (
-          <div className="flex gap-2 mt-2">
-            <label>
-              Brush Size:
-              <input
-                type="range"
-                min={1}
-                max={50}
-                value={brushSize}
-                onChange={(e) => setBrushSize(Number(e.target.value))}
-              />
-            </label>
-            <label>
-              Color:
-              <input
-                type="color"
-                value={brushColor}
-                onChange={(e) => setBrushColor(e.target.value)}
-              />
-            </label>
-          </div>
-        )}
-
-        {/* Rotate Controls */}
-        {tool === "rotate" && (
-          <div className="flex gap-2 mt-2">
-            <button onClick={() => applyRotation(90)}>90°</button>
-            <button onClick={() => applyRotation(180)}>180°</button>
-            <button onClick={() => applyRotation(270)}>270°</button>
-          </div>
-        )}
-
-        {/* Filter Controls */}
-        {tool === "filter" && (
-          <div className="flex gap-2 mt-2">
-            <label>
-              Brightness:
-              <input
-                type="range"
-                min={0}
-                max={200}
-                value={brightness}
-                onChange={(e) => setBrightness(Number(e.target.value))}
-              />
-            </label>
-            <label>
-              Contrast:
-              <input
-                type="range"
-                min={0}
-                max={200}
-                value={contrast}
-                onChange={(e) => setContrast(Number(e.target.value))}
-              />
-            </label>
-          </div>
-        )}
-      </div>
-
-      {/* Panel */}
-      <aside className="w-72 bg-[#161b22] p-3 border-l border-[#00ffd5] overflow-auto">
-        <h3 className="text-lg font-semibold mb-2">Properti</h3>
-        {tool ? <p>Pengaturan <b>{tool}</b> muncul di sini.</p> : <p>Pilih tool.</p>}
-        <div className="flex gap-2 mt-2">
-          <button onClick={undo}>Undo</button>
-          <button onClick={redo}>Redo</button>
-          <button onClick={exportImage}>Export</button>
-        </div>
-      </aside>
+  <div class="canvas-area">
+    <canvas id="canvas" width="960" height="560"></canvas>
+    <div id="brushPanel" style="display:none;">
+      Ukuran Brush:<input type="range" min="1" max="50" value="10" id="brushSize"><br>
+      Warna:<input type="color" value="#00ffd5" id="brushColor">
     </div>
-  );
-};
+    <div id="textPanel" style="display:none;">
+      Teks:<input type="text" placeholder="Tulis teks"><br>
+      Ukuran:<input type="number" value="24">
+    </div>
+    <div id="shapesPanel" style="display:none;">
+      Bentuk:<select><option>Persegi</option><option>Lingkaran</option><option>Segitiga</option></select>
+    </div>
+    <div id="filterPanel" style="display:none;">
+      Brightness:<input type="range" min="0" max="200" value="100" id="brightness"><br>
+      Contrast:<input type="range" min="0" max="200" value="100" id="contrast"><br>
+      Grayscale:<input type="range" min="0" max="100" value="0" id="grayscale"><br>
+      Sepia:<input type="range" min="0" max="100" value="0" id="sepia"><br>
+      Blur:<input type="range" min="0" max="10" value="0" step="0.5" id="blur">
+    </div>
+    <div id="aiPanel" style="display:none;">
+      Prompt AI:<input type="text"><button onclick="runAI()">Run</button>
+    </div>
+  </div>
 
-export default EditorFinal;
+  <div class="panel">
+    <h3>Properti</h3>
+    <div id="panelContent">Pilih tool</div>
+    <div>
+      <button onclick="undo()">Undo</button>
+      <button onclick="redo()">Redo</button>
+      <button onclick="exportImage()">Export</button>
+    </div>
+  </div>
+</div>
+
+<div id="status">Resolusi: 960x560 | Zoom:100%</div>
+
+<script>
+function openEditor(){document.getElementById('dashboard').style.display='none';document.getElementById('editor').style.display='flex';}
+function backDashboard(){document.getElementById('editor').style.display='none';document.getElementById('dashboard').style.display='flex';}
+
+let currentTool=null;
+function setTool(tool){
+  currentTool=tool;
+  document.getElementById('panelContent').innerText="Tool: "+tool;
+  document.getElementById('brushPanel').style.display=(tool==='brush')?'block':'none';
+  document.getElementById('textPanel').style.display=(tool==='text')?'block':'none';
+  document.getElementById('shapesPanel').style.display=(tool==='shapes')?'block':'none';
+  document.getElementById('filterPanel').style.display=(tool==='filter')?'block':'none';
+  document.getElementById('aiPanel').style.display=(tool==='ai')?'block':'none';
+}
+
+let hdMode=false;
+function toggleHD(){
+  hdMode=!hdMode;
+  const canvas=document.getElementById('canvas');
+  canvas.width=hdMode?1920:960;
+  canvas.height=hdMode?1120:560;
+}
+
+function undo(){alert("Undo placeholder");}
+function redo(){alert("Redo placeholder");}
+function exportImage(){alert("Export placeholder");}
+function runAI(){alert("AI placeholder");}
+
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+const img=new Image();
+img.src='https://via.placeholder.com/960x560.png?text=DSRT+Editor';
+img.onload=function(){ctx.drawImage(img,0,0,canvas.width,canvas.height);}
+
+function applyFilters(){
+  const b=document.getElementById('brightness').value;
+  const c=document.getElementById('contrast').value;
+  const g=document.getElementById('grayscale').value;
+  const s=document.getElementById('sepia').value;
+  const bl=document.getElementById('blur').value;
+  canvas.style.filter=`brightness(${b}%) contrast(${c}%) grayscale(${g}%) sepia(${s}%) blur(${bl}px)`;
+}
+['brightness','contrast','grayscale','sepia','blur'].forEach(id=>document.getElementById(id).oninput=applyFilters);
+
+let drawing=false;
+let brushSize=document.getElementById('brushSize').value;
+let brushColor=document.getElementById('brushColor').value;
+canvas.addEventListener('mousedown',e=>{if(currentTool==='brush'){drawing=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY);}});
+canvas.addEventListener('mousemove',e=>{if(drawing&&currentTool==='brush'){ctx.lineTo(e.offsetX,e.offsetY);ctx.strokeStyle=brushColor;ctx.lineWidth=brushSize;ctx.lineCap='round';ctx.stroke();}});
+canvas.addEventListener('mouseup',e=>{drawing=false;});
+canvas.addEventListener('mouseout',e=>{drawing=false;});
+document.getElementById('brushSize').oninput=function(){brushSize=this.value;}
+document.getElementById('brushColor').oninput=function(){brushColor=this.value;}
+
+function updateStatus(){document.getElementById('status').innerText=`Resolusi: ${canvas.width}x${canvas.height} | Zoom:100%`;}
+setInterval(updateStatus,1000);
+</script>
+
+</body>
+</html>
