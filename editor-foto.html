@@ -1,181 +1,172 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DSRT Editor Full</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DSRT Editor - Final Fungsional</title>
 <style>
-:root{--accent:#00ffd5;--bg:#0b1520;--panel:#161b22;--card:#0d2a30;--muted:#cde9e9;--footer:#001f27;}
-body{margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:var(--muted);}
-#dashboard,#editor{width:100vw;height:100vh;display:flex;flex-direction:column;}
-#dashboard{align-items:center;justify-content:flex-start;padding:20px;overflow:auto;}
-.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;width:100%;max-width:1200px;}
-.card{background:var(--card);border:2px solid var(--accent);border-radius:14px;padding:18px;text-align:center;color:var(--muted);cursor:pointer;}
-.card .icon{font-size:40px;margin-bottom:8px;color:var(--accent);}
-.premium{max-width:900px;width:100%;background:linear-gradient(135deg,#16222A,#3A6073);border:2px solid var(--accent);padding:24px;border-radius:16px;text-align:center;margin-top:20px;}
-.premium .btn{background:var(--accent);color:#001f27;padding:10px 22px;border-radius:12px;font-weight:700;}
-#editor{display:none;flex-direction:row;}
-.sidebar{width:70px;background:var(--panel);display:flex;flex-direction:column;align-items:center;padding:6px;gap:10px;overflow-y:auto;}
-.sidebar button{background:none;border:none;color:var(--accent);font-size:1.5rem;transition:transform .15s;}
-.sidebar button:hover{transform:scale(1.2);color:#00e3be;}
-.canvas-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;background:#071017;}
-canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;width:960px;height:560px;}
-.panel{width:280px;background:var(--panel);border-left:1px solid var(--accent);padding:12px;overflow:auto;}
-.panel h3{color:var(--accent);margin:0 0 12px;}
-.panel input[type="range"]{width:100%;}
-#status{background:#0d2a30;border-top:1px solid var(--accent);color:var(--accent);padding:6px 12px;}
-@media(max-width:768px){
-#editor{flex-direction:column;}
-.sidebar{flex-direction:row;width:100%;height:60px;}
-.panel{width:100%;border-left:none;border-top:1px solid var(--accent);height:220px;}
-canvas{width:100%;max-width:none;height:auto;}
-}
+:root{--accent:#00ffd5;--bg:#0b1520;--panel:#161b22}
+html,body{height:100%}
+body{margin:0;font-family:Inter,system-ui,Arial;background:#0d1117;color:#eafaf9;display:flex;flex-direction:column;height:100dvh}
+header{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:var(--panel);border-bottom:1px solid var(--accent)}
+header .left{display:flex;align-items:center;gap:10px}
+header button{background:none;border:none;color:#ffcb05;font-size:1.4rem;cursor:pointer}
+header .actions button{background:none;border:none;color:var(--accent);margin-left:8px;cursor:pointer}
+main{flex:1;display:grid;grid-template-columns:70px 1fr 280px;grid-template-rows:1fr 36px;grid-template-areas:"sidebar canvas panel" "status status status";height:calc(100vh - 48px)}
+.sidebar { grid-area: sidebar; background: var(--panel); border-right: 1px solid var(--accent); display: flex; flex-direction: column; align-items: center; padding: 12px 6px; gap: 16px; overflow-y: auto; }
+.sidebar button { background: none; border: none; color: var(--accent); font-size: 1.9rem; cursor: pointer; transition: transform .15s, color .15s; }
+.sidebar button:hover { color: #00e3be; transform: scale(1.2); }
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-thumb { background: #0f3b46; border-radius: 6px; }
+.canvas-area{grid-area:canvas;display:flex;align-items:center;justify-content:center;background:#071017;padding:12px}
+canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;width:100%;max-width:960px;height:560px}
+.panel{grid-area:panel;background:var(--panel);border-left:1px solid var(--accent);padding:12px;overflow:auto}
+.panel h3{color:var(--accent);margin:0 0 12px}
+.status{grid-area:status;background:#0d2a30;border-top:1px solid var(--accent);display:flex;justify-content:space-between;align-items:center;padding:0 12px;color:var(--accent)}
+@media(max-width:768px){main{grid-template-columns:1fr;grid-template-rows:1fr 60px 220px 36px;grid-template-areas:"canvas" "toolbar" "panel" "status"} .sidebar{grid-area:toolbar;flex-direction:row;justify-content:space-around;border-right:none;border-top:1px solid var(--accent);padding:8px} .panel{grid-area:panel;border-left:none;border-top:1px solid var(--accent);height:220px} canvas{height:100%;max-width:none}}
+@media(min-width:1280px){canvas{max-width:1100px;height:680px}.panel{padding:18px}}
 </style>
 </head>
 <body>
-
-<div id="dashboard">
-  <h1 style="color:var(--accent);">DSRT Dashboard</h1>
-  <div class="features">
-    <div class="card" onclick="openEditor()">🖼️<br>Editing Foto</div>
-    <div class="card">🎬<br>Editing Video</div>
-    <div class="card">🎨<br>Editing Logo</div>
-    <div class="card">✂️<br>Remove Background</div>
+<header>
+  <div class="left">
+    <button onclick="location.href='dashboard.html'">✕</button>
+    <input type="file" id="upload" accept="image/*" style="display:none">
+    <button onclick="document.getElementById('upload').click()">📂</button>
   </div>
-  <div class="premium">
-    <h2>Upgrade ke Premium 🚀</h2>
-    <button class="btn">Upgrade</button>
+  <div class="actions">
+    <button onclick="undo()">Undo</button>
+    <button onclick="redo()">Redo</button>
+    <button onclick="saveImage()">Save</button>
+    <button onclick="exportImage()">Export</button>
   </div>
-</div>
+</header>
 
-<div id="editor">
+<main>
   <div class="sidebar">
-    <button onclick="backDashboard()">⬅️</button>
-    <!-- Dasar -->
-    <button onclick="setTool('select')">🖱️</button>
-    <button onclick="setTool('crop')">✂️</button>
-    <button onclick="setTool('brush')">🖌️</button>
-    <button onclick="setTool('eraser')">🩹</button>
-    <button onclick="setTool('fill')">🪣</button>
-    <button onclick="setTool('text')">🔤</button>
-    <button onclick="setTool('shapes')">⬛</button>
-    <!-- Transformasi -->
-    <button onclick="setTool('resize')">↔️</button>
-    <button onclick="setTool('rotate')">🔄</button>
-    <button onclick="setTool('flip')">↕️</button>
-    <button onclick="setTool('zoom')">🔍</button>
-    <!-- Efek -->
-    <button onclick="setTool('filter')">🎨</button>
-    <button onclick="setTool('adjust')">🌈</button>
-    <button onclick="setTool('gradient')">🟦</button>
-    <!-- Layer -->
-    <button onclick="setTool('layers')">📑</button>
-    <button onclick="setTool('group')">📦</button>
-    <button onclick="setTool('lock')">🔒</button>
-    <button onclick="setTool('duplicate')">📄</button>
-    <button onclick="setTool('delete')">🗑️</button>
-    <!-- Tambahan -->
-    <button onclick="setTool('ai')">🤖</button>
-    <button onclick="setTool('stickers')">⭐</button>
-    <button onclick="setTool('elements')">📐</button>
-    <button onclick="toggleHD()">HD</button>
+    <!-- Semua tool dasar → profesional -->
+    <button title="Select" onclick="setTool('select')">🖱️</button>
+    <button title="Crop" onclick="setTool('crop')">✂️</button>
+    <button title="Brush" onclick="setTool('brush')">🖌️</button>
+    <button title="Eraser" onclick="setTool('eraser')">🩹</button>
+    <button title="Fill" onclick="setTool('fill')">🪣</button>
+    <button title="Text" onclick="setTool('text')">🔤</button>
+    <button title="Shapes" onclick="setTool('shapes')">⬛</button>
+    <button title="Resize" onclick="setTool('resize')">↔️</button>
+    <button title="Rotate" onclick="setTool('rotate')">🔄</button>
+    <button title="Flip" onclick="setTool('flip')">↕️</button>
+    <button title="Zoom" onclick="setTool('zoom')">🔍</button>
+    <button title="Filter" onclick="setTool('filter')">🎨</button>
+    <button title="Adjust" onclick="setTool('adjust')">🌈</button>
+    <button title="Gradient" onclick="setTool('gradient')">🟦</button>
+    <button title="Layers" onclick="setTool('layers')">📑</button>
+    <button title="Group" onclick="setTool('group')">📦</button>
+    <button title="Lock" onclick="setTool('lock')">🔒</button>
+    <button title="Duplicate" onclick="setTool('duplicate')">📄</button>
+    <button title="Delete" onclick="setTool('delete')">🗑️</button>
+    <button title="AI Tools" onclick="setTool('ai')">🤖</button>
+    <button title="Stickers" onclick="setTool('stickers')">⭐</button>
+    <button title="Elements" onclick="setTool('elements')">📐</button>
+    <button title="HD" onclick="setTool('hd')">🟩</button>
+    <button title="Export" onclick="setTool('export')">📤</button>
   </div>
 
   <div class="canvas-area">
-    <canvas id="canvas" width="960" height="560"></canvas>
-    <div id="brushPanel" style="display:none;">
-      Ukuran Brush:<input type="range" min="1" max="50" value="10" id="brushSize"><br>
-      Warna:<input type="color" value="#00ffd5" id="brushColor">
-    </div>
-    <div id="textPanel" style="display:none;">
-      Teks:<input type="text" placeholder="Tulis teks"><br>
-      Ukuran:<input type="number" value="24">
-    </div>
-    <div id="shapesPanel" style="display:none;">
-      Bentuk:<select><option>Persegi</option><option>Lingkaran</option><option>Segitiga</option></select>
-    </div>
-    <div id="filterPanel" style="display:none;">
-      Brightness:<input type="range" min="0" max="200" value="100" id="brightness"><br>
-      Contrast:<input type="range" min="0" max="200" value="100" id="contrast"><br>
-      Grayscale:<input type="range" min="0" max="100" value="0" id="grayscale"><br>
-      Sepia:<input type="range" min="0" max="100" value="0" id="sepia"><br>
-      Blur:<input type="range" min="0" max="10" value="0" step="0.5" id="blur">
-    </div>
-    <div id="aiPanel" style="display:none;">
-      Prompt AI:<input type="text"><button onclick="runAI()">Run</button>
-    </div>
+    <canvas id="canvasPhoto" width="960" height="560"></canvas>
   </div>
 
-  <div class="panel">
-    <h3>Properti</h3>
-    <div id="panelContent">Pilih tool</div>
-    <div>
-      <button onclick="undo()">Undo</button>
-      <button onclick="redo()">Redo</button>
-      <button onclick="exportImage()">Export</button>
-    </div>
-  </div>
-</div>
+  <aside class="panel">
+    <h3 id="panel-title">Properti</h3>
+    <div id="panel-content">Pilih tool untuk melihat pengaturan.</div>
+  </aside>
 
-<div id="status">Resolusi: 960x560 | Zoom:100%</div>
+  <div class="status">
+    <span id="status-res">Resolusi: 960x560</span>
+    <span id="status-zoom">Zoom:100%</span>
+  </div>
+</main>
 
 <script>
-function openEditor(){document.getElementById('dashboard').style.display='none';document.getElementById('editor').style.display='flex';}
-function backDashboard(){document.getElementById('editor').style.display='none';document.getElementById('dashboard').style.display='flex';}
+const panelTitle = document.getElementById("panel-title");
+const panelContent = document.getElementById("panel-content");
+let tool = "select";
 
-let currentTool=null;
-function setTool(tool){
-  currentTool=tool;
-  document.getElementById('panelContent').innerText="Tool: "+tool;
-  document.getElementById('brushPanel').style.display=(tool==='brush')?'block':'none';
-  document.getElementById('textPanel').style.display=(tool==='text')?'block':'none';
-  document.getElementById('shapesPanel').style.display=(tool==='shapes')?'block':'none';
-  document.getElementById('filterPanel').style.display=(tool==='filter')?'block':'none';
-  document.getElementById('aiPanel').style.display=(tool==='ai')?'block':'none';
-}
+function setTool(t){
+  tool = t;
+  panelTitle.textContent = "Properti: " + t;
+  let html = "";
 
-let hdMode=false;
-function toggleHD(){
-  hdMode=!hdMode;
-  const canvas=document.getElementById('canvas');
-  canvas.width=hdMode?1920:960;
-  canvas.height=hdMode?1120:560;
+  switch(t){
+    case "brush":
+      html=`<label>Ukuran Brush</label><input type="range" min="1" max="50" value="10">
+            <label>Warna</label><input type="color" value="#00ffd5">`;
+      break;
+    case "text":
+      html=`<label>Teks</label><input type="text" placeholder="Tulis teks">
+            <label>Ukuran</label><input type="number" value="24">`;
+      break;
+    case "shapes":
+      html=`<label>Bentuk</label><select><option>Persegi</option><option>Lingkaran</option></select>`;
+      break;
+    case "resize":
+      html=`<label>Width</label><input type="number" value="960">
+            <label>Height</label><input type="number" value="560">`;
+      break;
+    case "rotate":
+      html=`<label>Rotate</label><input type="range" min="0" max="360" value="0">`;
+      break;
+    case "flip":
+      html=`<button>Flip Horizontal</button><button>Flip Vertical</button>`;
+      break;
+    case "zoom":
+      html=`<label>Zoom</label><input type="range" min="10" max="200" value="100">`;
+      break;
+    case "filter":
+      html=`<label>Brightness</label><input type="range" min="0" max="200" value="100">
+            <label>Contrast</label><input type="range" min="0" max="200" value="100">`;
+      break;
+    case "adjust":
+      html=`<label>Saturation</label><input type="range" min="0" max="200" value="100">
+            <label>Hue</label><input type="range" min="0" max="360" value="0">`;
+      break;
+    case "gradient":
+      html=`<label>Gradient Type</label><select><option>Linear</option><option>Radial</option></select>`;
+      break;
+    case "layers":
+      html=`<p>Daftar layer muncul di sini</p>`;
+      break;
+    case "group":
+    case "lock":
+    case "duplicate":
+    case "delete":
+      html=`<p>Aksi ${t} placeholder</p>`;
+      break;
+    case "ai":
+      html=`<p>AI tools placeholder</p>`;
+      break;
+    case "stickers":
+      html=`<p>Stickers placeholder</p>`;
+      break;
+    case "elements":
+      html=`<p>Elements placeholder</p>`;
+      break;
+    case "hd":
+      html=`<p>HD level placeholder</p>`;
+      break;
+    case "export":
+      html=`<p>Export options placeholder</p>`;
+      break;
+    default:
+      html=`<p>Tidak ada pengaturan.</p>`;
+  }
+
+  panelContent.innerHTML=html;
 }
 
 function undo(){alert("Undo placeholder");}
 function redo(){alert("Redo placeholder");}
+function saveImage(){alert("Save placeholder");}
 function exportImage(){alert("Export placeholder");}
-function runAI(){alert("AI placeholder");}
-
-const canvas=document.getElementById('canvas');
-const ctx=canvas.getContext('2d');
-const img=new Image();
-img.src='https://via.placeholder.com/960x560.png?text=DSRT+Editor';
-img.onload=function(){ctx.drawImage(img,0,0,canvas.width,canvas.height);}
-
-function applyFilters(){
-  const b=document.getElementById('brightness').value;
-  const c=document.getElementById('contrast').value;
-  const g=document.getElementById('grayscale').value;
-  const s=document.getElementById('sepia').value;
-  const bl=document.getElementById('blur').value;
-  canvas.style.filter=`brightness(${b}%) contrast(${c}%) grayscale(${g}%) sepia(${s}%) blur(${bl}px)`;
-}
-['brightness','contrast','grayscale','sepia','blur'].forEach(id=>document.getElementById(id).oninput=applyFilters);
-
-let drawing=false;
-let brushSize=document.getElementById('brushSize').value;
-let brushColor=document.getElementById('brushColor').value;
-canvas.addEventListener('mousedown',e=>{if(currentTool==='brush'){drawing=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY);}});
-canvas.addEventListener('mousemove',e=>{if(drawing&&currentTool==='brush'){ctx.lineTo(e.offsetX,e.offsetY);ctx.strokeStyle=brushColor;ctx.lineWidth=brushSize;ctx.lineCap='round';ctx.stroke();}});
-canvas.addEventListener('mouseup',e=>{drawing=false;});
-canvas.addEventListener('mouseout',e=>{drawing=false;});
-document.getElementById('brushSize').oninput=function(){brushSize=this.value;}
-document.getElementById('brushColor').oninput=function(){brushColor=this.value;}
-
-function updateStatus(){document.getElementById('status').innerText=`Resolusi: ${canvas.width}x${canvas.height} | Zoom:100%`;}
-setInterval(updateStatus,1000);
 </script>
-
 </body>
 </html>
