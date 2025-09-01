@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>DSRT Editor - Final Fungsional</title>
+<title>DSRT Editor</title>
 <style>
 :root{--accent:#00ffd5;--bg:#0b1520;--panel:#161b22}
 html,body{height:100%}
@@ -13,24 +13,60 @@ header .left{display:flex;align-items:center;gap:10px}
 header button{background:none;border:none;color:#ffcb05;font-size:1.4rem;cursor:pointer}
 header .actions button{background:none;border:none;color:var(--accent);margin-left:8px;cursor:pointer}
 main{flex:1;display:grid;grid-template-columns:70px 1fr 280px;grid-template-rows:1fr 36px;grid-template-areas:"sidebar canvas panel" "status status status";height:calc(100vh - 48px)}
-.sidebar { grid-area: sidebar; background: var(--panel); border-right: 1px solid var(--accent); display: flex; flex-direction: column; align-items: center; padding: 12px 6px; gap: 16px; overflow-y: auto; }
-.sidebar button { background: none; border: none; color: var(--accent); font-size: 1.9rem; cursor: pointer; transition: transform .15s, color .15s; }
-.sidebar button:hover { color: #00e3be; transform: scale(1.2); }
+
+/* === Sidebar === */
+.sidebar {
+  grid-area: sidebar;
+  background: var(--panel);
+  border-right: 1px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 6px;
+  gap: 16px;
+  overflow-y: auto;
+}
+.sidebar button {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 1.9rem;
+  cursor: pointer;
+  transition: transform .15s, color .15s;
+}
+.sidebar button:hover {
+  color: #00e3be;
+  transform: scale(1.2);
+}
 .sidebar::-webkit-scrollbar { width: 6px; }
 .sidebar::-webkit-scrollbar-thumb { background: #0f3b46; border-radius: 6px; }
+
+/* === Canvas area === */
 .canvas-area{grid-area:canvas;display:flex;align-items:center;justify-content:center;background:#071017;padding:12px}
 canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;width:100%;max-width:960px;height:560px}
+
+/* === Panel kanan === */
 .panel{grid-area:panel;background:var(--panel);border-left:1px solid var(--accent);padding:12px;overflow:auto}
 .panel h3{color:var(--accent);margin:0 0 12px}
+
+/* === Status bar === */
 .status{grid-area:status;background:#0d2a30;border-top:1px solid var(--accent);display:flex;justify-content:space-between;align-items:center;padding:0 12px;color:var(--accent)}
-@media(max-width:768px){main{grid-template-columns:1fr;grid-template-rows:1fr 60px 220px 36px;grid-template-areas:"canvas" "toolbar" "panel" "status"} .sidebar{grid-area:toolbar;flex-direction:row;justify-content:space-around;border-right:none;border-top:1px solid var(--accent);padding:8px} .panel{grid-area:panel;border-left:none;border-top:1px solid var(--accent);height:220px} canvas{height:100%;max-width:none}}
+
+/* MOBILE */
+@media(max-width:768px){
+  main{grid-template-columns:1fr;grid-template-rows:1fr 60px 220px 36px;grid-template-areas:"canvas" "toolbar" "panel" "status"}
+  .sidebar{grid-area:toolbar;flex-direction:row;justify-content:space-around;border-right:none;border-top:1px solid var(--accent);padding:8px}
+  .panel{grid-area:panel;border-left:none;border-top:1px solid var(--accent);height:220px}
+  canvas{height:100%;max-width:none}
+}
+/* LARGE */
 @media(min-width:1280px){canvas{max-width:1100px;height:680px}.panel{padding:18px}}
 </style>
 </head>
 <body>
 <header>
   <div class="left">
-    <button onclick="location.href='dashboard.html'">✕</button>
+    <button onclick="location.href='home.html'">✕</button>
     <input type="file" id="upload" accept="image/*" style="display:none">
     <button onclick="document.getElementById('upload').click()">📂</button>
   </div>
@@ -43,8 +79,9 @@ canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;wid
 </header>
 
 <main>
+  <!-- === Sidebar lengkap === -->
   <div class="sidebar">
-    <!-- Semua tool dasar → profesional -->
+    <!-- Editing dasar -->
     <button title="Select" onclick="setTool('select')">🖱️</button>
     <button title="Crop" onclick="setTool('crop')">✂️</button>
     <button title="Brush" onclick="setTool('brush')">🖌️</button>
@@ -52,34 +89,43 @@ canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;wid
     <button title="Fill" onclick="setTool('fill')">🪣</button>
     <button title="Text" onclick="setTool('text')">🔤</button>
     <button title="Shapes" onclick="setTool('shapes')">⬛</button>
+
+    <!-- Transformasi -->
     <button title="Resize" onclick="setTool('resize')">↔️</button>
     <button title="Rotate" onclick="setTool('rotate')">🔄</button>
     <button title="Flip" onclick="setTool('flip')">↕️</button>
     <button title="Zoom" onclick="setTool('zoom')">🔍</button>
+
+    <!-- Efek -->
     <button title="Filter" onclick="setTool('filter')">🎨</button>
     <button title="Adjust" onclick="setTool('adjust')">🌈</button>
     <button title="Gradient" onclick="setTool('gradient')">🟦</button>
+
+    <!-- Layer -->
     <button title="Layers" onclick="setTool('layers')">📑</button>
     <button title="Group" onclick="setTool('group')">📦</button>
     <button title="Lock" onclick="setTool('lock')">🔒</button>
     <button title="Duplicate" onclick="setTool('duplicate')">📄</button>
     <button title="Delete" onclick="setTool('delete')">🗑️</button>
+
+    <!-- Tambahan -->
     <button title="AI Tools" onclick="setTool('ai')">🤖</button>
     <button title="Stickers" onclick="setTool('stickers')">⭐</button>
     <button title="Elements" onclick="setTool('elements')">📐</button>
-    <button title="HD" onclick="setTool('hd')">🟩</button>
-    <button title="Export" onclick="setTool('export')">📤</button>
   </div>
 
+  <!-- === Canvas area === -->
   <div class="canvas-area">
     <canvas id="canvasPhoto" width="960" height="560"></canvas>
   </div>
 
+  <!-- === Panel kanan (dinamis) === -->
   <aside class="panel">
     <h3 id="panel-title">Properti</h3>
     <div id="panel-content">Pilih tool untuk melihat pengaturan.</div>
   </aside>
 
+  <!-- === Status bar === -->
   <div class="status">
     <span id="status-res">Resolusi: 960x560</span>
     <span id="status-zoom">Zoom:100%</span>
@@ -91,82 +137,41 @@ const panelTitle = document.getElementById("panel-title");
 const panelContent = document.getElementById("panel-content");
 let tool = "select";
 
-function setTool(t){
+function setTool(t) {
   tool = t;
   panelTitle.textContent = "Properti: " + t;
   let html = "";
 
-  switch(t){
+  switch(t) {
     case "brush":
-      html=`<label>Ukuran Brush</label><input type="range" min="1" max="50" value="10">
-            <label>Warna</label><input type="color" value="#00ffd5">`;
+      html = `<label>Ukuran Brush</label><input type="range" min="1" max="50" value="10">
+              <label>Warna</label><input type="color" value="#00ffd5">`;
       break;
     case "text":
-      html=`<label>Teks</label><input type="text" placeholder="Tulis teks">
-            <label>Ukuran</label><input type="number" value="24">`;
+      html = `<label>Teks</label><input type="text" placeholder="Tulis teks">
+              <label>Ukuran</label><input type="number" value="24">`;
       break;
     case "shapes":
-      html=`<label>Bentuk</label><select><option>Persegi</option><option>Lingkaran</option></select>`;
-      break;
-    case "resize":
-      html=`<label>Width</label><input type="number" value="960">
-            <label>Height</label><input type="number" value="560">`;
-      break;
-    case "rotate":
-      html=`<label>Rotate</label><input type="range" min="0" max="360" value="0">`;
-      break;
-    case "flip":
-      html=`<button>Flip Horizontal</button><button>Flip Vertical</button>`;
-      break;
-    case "zoom":
-      html=`<label>Zoom</label><input type="range" min="10" max="200" value="100">`;
+      html = `<label>Bentuk</label><select><option>Persegi</option><option>Lingkaran</option></select>`;
       break;
     case "filter":
-      html=`<label>Brightness</label><input type="range" min="0" max="200" value="100">
-            <label>Contrast</label><input type="range" min="0" max="200" value="100">`;
-      break;
-    case "adjust":
-      html=`<label>Saturation</label><input type="range" min="0" max="200" value="100">
-            <label>Hue</label><input type="range" min="0" max="360" value="0">`;
-      break;
-    case "gradient":
-      html=`<label>Gradient Type</label><select><option>Linear</option><option>Radial</option></select>`;
+      html = `<label>Brightness</label><input type="range" min="0" max="200" value="100">
+              <label>Contrast</label><input type="range" min="0" max="200" value="100">`;
       break;
     case "layers":
-      html=`<p>Daftar layer muncul di sini</p>`;
-      break;
-    case "group":
-    case "lock":
-    case "duplicate":
-    case "delete":
-      html=`<p>Aksi ${t} placeholder</p>`;
-      break;
-    case "ai":
-      html=`<p>AI tools placeholder</p>`;
-      break;
-    case "stickers":
-      html=`<p>Stickers placeholder</p>`;
-      break;
-    case "elements":
-      html=`<p>Elements placeholder</p>`;
-      break;
-    case "hd":
-      html=`<p>HD level placeholder</p>`;
-      break;
-    case "export":
-      html=`<p>Export options placeholder</p>`;
+      html = `<p>Layer list akan tampil di sini.</p>`;
       break;
     default:
-      html=`<p>Tidak ada pengaturan.</p>`;
+      html = "<p>Tidak ada pengaturan.</p>";
   }
-
-  panelContent.innerHTML=html;
+  panelContent.innerHTML = html;
 }
 
-function undo(){alert("Undo placeholder");}
-function redo(){alert("Redo placeholder");}
-function saveImage(){alert("Save placeholder");}
-function exportImage(){alert("Export placeholder");}
+/* Placeholder fungsi */
+function undo(){alert("Undo belum aktif");}
+function redo(){alert("Redo belum aktif");}
+function saveImage(){alert("Save ke server belum aktif");}
+function exportImage(){alert("Export belum aktif");}
 </script>
 </body>
 </html>
