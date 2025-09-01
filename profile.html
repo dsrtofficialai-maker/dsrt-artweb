@@ -1,52 +1,338 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8" />
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>DSRT - Profile</title>
+<title>Profile Akun DSRT</title>
 <style>
-:root{--accent:#00ffd5;--card:#0d2a30;--muted:#cde9e9;--bg:#203a43}
-html,body{height:100%}
-body{margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(135deg,#0f2027,var(--bg),#2c5364);color:var(--muted);display:flex;flex-direction:column;min-height:100dvh}
-header{padding:14px 16px;text-align:center;border-bottom:2px solid var(--accent);background:rgba(13,42,48,0.6)}
-header h1{margin:0;color:var(--accent)}
-main{flex:1;padding:22px;display:flex;justify-content:center;align-items:flex-start}
-.container{width:100%;max-width:720px;background:var(--card);border-radius:14px;padding:18px;border:2px solid rgba(0,255,213,0.06)}
-.avatar{width:72px;height:72px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#001f27;font-weight:800;margin:12px auto}
-.menu{margin-top:12px}
-.menu li{list-style:none;padding:10px;border-bottom:1px solid #203a43;cursor:pointer}
-.danger{background:#fe486a;color:white;padding:10px;border-radius:12px;text-align:center;margin-top:12px;cursor:pointer}
-.bottom-nav{position:fixed;left:0;right:0;bottom:0;background:#001f27;border-top:2px solid var(--accent);display:flex;justify-content:space-around;padding:10px 0;z-index:2}
-.bottom-nav a{color:var(--accent);text-decoration:none;text-align:center}
-@media(min-width:1024px){main{padding:40px} .container{padding:24px}}
+  :root {
+    --accent: #00ffd5;
+    --card-bg: #0d2a30;
+    --modal-bg: #112d38;
+    --btn-bg: #ffcb05;
+    --danger-bg: #fe486a;
+    --danger-bg-hover: #c8203d;
+    --text-light: #cde9e9;
+  }
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, Arial;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+    min-height: 100vh;
+  }
+  .profile-container {
+    max-width: 430px;
+    margin: 32px auto;
+    background: var(--card-bg);
+    border-radius: 18px;
+    box-shadow: 0 6px 32px rgba(0,255,213,0.13);
+    padding: 18px 0 12px 0;
+    position: relative;
+  }
+  .profile-close {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    background: none;
+    border: none;
+    font-size: 2.1rem;
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 2;
+    transition:.18s;
+  }
+  .profile-close:hover {
+    color: #00e3be;
+    background:rgba(0,255,213,0.07);
+    border-radius:50%;
+  }
+  .profile-header {
+    text-align: center;
+    padding: 18px 24px 7px 24px;
+    margin-bottom: 12px;
+    margin-top: 18px;
+  }
+  .profile-header .avatar {
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin:0 auto 10px auto;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.3rem; color: #001f27; font-weight: bold;
+    box-shadow:0 2px 10px rgba(0,255,213,0.17);
+  }
+  .profile-header .name {font-size:1.2rem;font-weight:700}
+  .profile-header .role {font-size:0.95rem;color:var(--text-light)}
+  .change-photo {
+    margin-top: 8px;
+    background: var(--accent);
+    color: #001f27;
+    border: none;
+    border-radius: 12px;
+    padding: 6px 14px;
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .15s;
+  }
+  .change-photo:hover { background: #00e3be; }
+  .menu-section { margin-bottom: 18px; padding: 0 24px; }
+  .menu-title {
+    font-size: 1.1rem;
+    color: var(--accent);
+    font-weight: bold;
+    margin-bottom: 8px;
+    margin-top: 12px;
+    letter-spacing: 1px;
+  }
+  .menu-list { list-style:none; padding:0; margin:0; }
+  .menu-list li {
+    padding: 10px 0 10px 12px;
+    border-bottom: 1px solid #203a43;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: background .15s;
+    border-radius: 8px;
+  }
+  .menu-list li:last-child { border-bottom:none; }
+  .menu-list li:hover { background: #19323d; }
+  .danger {
+    color: #fff;
+    background: var(--danger-bg);
+    text-align: center;
+    font-weight: bold;
+    margin: 14px auto 6px auto;
+    border-radius: 14px;
+    padding: 12px 0;
+    cursor: pointer;
+    transition: background .15s;
+    border: none;
+    font-size: 1.05rem;
+    display: block;
+    width: 60%;
+    max-width: 280px;
+  }
+  .danger:hover { background: var(--danger-bg-hover); }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(13,42,48,0.77);
+    z-index: 999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-active { display:flex !important;}
+  .modal-box {
+    background: var(--modal-bg);
+    color: var(--text-light);
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(0,255,213,0.11);
+    padding: 18px 10px 14px 10px;
+    min-width: 210px; max-width: 92vw; width: 290px;
+    position: relative;
+    text-align: center;
+    border: 1.5px solid var(--accent);
+  }
+  .modal-box h3 { color: var(--accent); margin-bottom: 12px; font-size: 1.08rem; }
+  .modal-close {
+    position: absolute;
+    top: 10px; left: 14px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 2;
+  }
+  .modal-box input, .modal-box textarea, .modal-box select {
+    width: 92%; margin: 7px 0; padding: 7px;
+    border-radius: 8px; border: 1px solid #444;
+    background: #203a43; color: var(--text-light); font-size: .98rem;
+  }
+  .modal-box label { font-weight:bold; display:block; text-align:left; margin-left:7%; margin-top:7px; }
+  .modal-box button {
+    margin-top: 12px;
+    background: var(--btn-bg);
+    color: #222;
+    border: none;
+    border-radius: 14px;
+    padding: 8px 18px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  /* Modal delete */
+  .modal-box.delete-modal {
+    border: 1.5px solid var(--danger-bg);
+    padding: 15px 6px 14px 6px;
+    width: 230px;
+    max-width: 92vw;
+  }
+  .modal-box.delete-modal h3 { color: var(--danger-bg);}
+  .modal-box.delete-modal button {
+    background: var(--danger-bg);
+    color:#fff;
+    border-radius:12px;
+    margin-top:10px;
+  }
+  .modal-box.delete-modal button:hover { background: var(--danger-bg-hover); }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .profile-container {padding: 8px 0;}
+    .menu-section {padding: 0 7px;}
+    .modal-box {padding: 9px 2px 9px 2px; min-width: 0; width: 97vw;}
+    .modal-close{top:7px;left:7px;font-size:1.3rem;}
+    .modal-box.delete-modal{width:90vw;}
+    .danger { width: 80%; font-size: 1rem; padding: 10px 0; }
+  }
+
+  /* Desktop Fix */
+  @media (min-width:1024px) {
+    .profile-container {
+      margin: 20px auto;
+      max-width: 720px;
+      padding: 24px;
+    }
+  }
 </style>
 </head>
 <body>
-  <header><h1>Profile</h1></header>
-  <main><div class="container" role="region" aria-label="Profil">
-    <div class="avatar">U</div>
-    <div style="text-align:center"><strong>User Demo</strong><div style="color:#9fdfe6">Premium Member</div></div>
-    <div class="menu">
-      <ul>
-        <li>Login</li><li>Register</li><li>Forgot Password</li><li>Edit Profil</li>
-      </ul>
+  <div class="profile-container">
+    <button class="profile-close" onclick="goHome()" title="Kembali ke Home">&times;</button>
+    <div class="profile-header">
+      <div class="avatar">U</div>
+      <div class="name">User Demo</div>
+      <div class="role">Premium Member</div>
+      <button class="change-photo" onclick="showModal('photo')">Ganti Foto</button>
     </div>
-    <div class="menu">
-      <ul>
-        <li>Ubah Password</li><li>License</li><li>Privacy</li><li>Terms</li>
-      </ul>
-    </div>
-    <div class="menu">
-      <ul>
-        <li>FAQ</li><li>Contact Support</li><li>Logout</li>
-      </ul>
-    </div>
-    <div class="danger">Hapus Akun</div>
-  </div></main>
 
-  <nav class="bottom-nav">
-    <a href="home.html">🏠<br>Home</a>
-    <a href="profile.html">👤<br>Profile</a>
-  </nav>
+    <div class="menu-section">
+      <div class="menu-title">Pengaturan Profil</div>
+      <ul class="menu-list">
+        <li onclick="showModal('login')">Login</li>
+        <li onclick="showModal('register')">Register</li>
+        <li onclick="showModal('forgot')">Forgot Password</li>
+        <li onclick="showModal('edit')">Edit Profil</li>
+      </ul>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title">Keamanan</div>
+      <ul class="menu-list">
+        <li onclick="showModal('password')">Ubah Password</li>
+        <li onclick="showModal('license')">License Terms</li>
+        <li onclick="showModal('privacy')">Privacy Policy</li>
+        <li onclick="showModal('terms')">Terms of Service</li>
+      </ul>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title">Bantuan</div>
+      <ul class="menu-list">
+        <li onclick="showModal('faq')">FAQ</li>
+        <li onclick="showModal('support')">Contact Support</li>
+      </ul>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title">Preferensi</div>
+      <ul class="menu-list">
+        <li onclick="showModal('notif')">Notifikasi</li>
+        <li onclick="showModal('language')">Bahasa</li>
+        <li onclick="showModal('theme')">Tema</li>
+      </ul>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title">Langganan</div>
+      <ul class="menu-list">
+        <li onclick="showModal('subscription')">Kelola Premium</li>
+      </ul>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title">Tentang Akun</div>
+      <ul class="menu-list">
+        <li onclick="showModal('logout')">Logout</li>
+      </ul>
+    </div>
+
+    <div class="danger" onclick="showModal('delete')">Hapus Akun</div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modal">
+    <div class="modal-box" id="modal-content">
+      <button class="modal-close" onclick="closeModal()" title="Tutup">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+  <script>
+    const modalContent = {
+      photo: `<h3>Ganti Foto Profil</h3>
+        <input type="file" accept="image/*">
+        <button>Upload</button>`,
+      login: `<h3>Login</h3><label>Email</label><input type="email" placeholder="Email"><label>Password</label><input type="password" placeholder="Password"><button>Masuk</button>`,
+      register: `<h3>Register</h3><label>Nama Lengkap</label><input type="text" placeholder="Nama Lengkap"><label>Email</label><input type="email" placeholder="Email"><label>Password</label><input type="password" placeholder="Password"><button>Daftar</button>`,
+      forgot: `<h3>Forgot Password</h3><label>Email</label><input type="email" placeholder="Email"><button>Reset Password</button>`,
+      edit: `<h3>Edit Profil</h3><label>Nama</label><input type="text" value="User Demo"><label>Email</label><input type="email" value="user@email.com"><button>Simpan Perubahan</button>`,
+      password: `<h3>Ubah Password</h3><label>Password Lama</label><input type="password" placeholder="Password Lama"><label>Password Baru</label><input type="password" placeholder="Password Baru"><button>Ubah Password</button>`,
+      license: `<h3>License Terms</h3><p>Penggunaan aplikasi ini tunduk pada lisensi DSRT. Dilarang keras mendistribusikan ulang tanpa izin.</p>`,
+      privacy: `<h3>Privacy Policy</h3><p>Kami menjaga kerahasiaan data Anda dan tidak akan membagikan data pribadi tanpa persetujuan.</p>`,
+      terms: `<h3>Terms of Service</h3><p>Dengan menggunakan aplikasi ini, Anda setuju atas seluruh syarat dan ketentuan yang berlaku.</p>`,
+      faq: `<h3>FAQ</h3><ul style="text-align:left;"><li><b>Bagaimana cara login?</b> Klik menu Login dan masukkan email & password Anda.</li><li><b>Bagaimana reset password?</b> Gunakan menu Forgot Password dan ikuti petunjuk.</li><li><b>Bagaimana upgrade akun?</b> Gunakan menu Kelola Premium atau hubungi support kami.</li></ul>`,
+      support: `<h3>Contact Support</h3><label>Pesan</label><textarea placeholder="Deskripsikan masalah Anda..."></textarea><button>Kirim Pesan</button>`,
+      notif: `<h3>Pengaturan Notifikasi</h3>
+        <label><input type="checkbox" checked> Email</label>
+        <label><input type="checkbox"> Push Notification</label>
+        <label><input type="checkbox"> SMS</label>
+        <button>Simpan</button>`,
+      language: `<h3>Pilih Bahasa</h3>
+        <select>
+          <option>Indonesia</option>
+          <option>English</option>
+          <option>Español</option>
+        </select>
+        <button>Simpan</button>`,
+      theme: `<h3>Pilih Tema</h3>
+        <label><input type="radio" name="theme"> Terang</label><br>
+        <label><input type="radio" name="theme" checked> Gelap</label><br>
+        <label><input type="radio" name="theme"> Ikuti Sistem</label>
+        <button>Terapkan</button>`,
+      subscription: `<h3>Langganan Premium</h3>
+        <p>Status: <b>Aktif</b> sampai 01/12/2025</p>
+        <button>Perpanjang</button>
+        <button style="background:#fe486a;color:#fff;margin-top:8px;">Batalkan</button>`,
+      logout: `<h3>Logout</h3><p>Apakah Anda yakin ingin keluar?</p><button>Keluar</button>`,
+      delete: `<h3>Hapus Akun</h3><p>Yakin ingin <b>hapus akun</b> ini secara permanen?<br>Tindakan ini tidak dapat dibatalkan!</p><button>Hapus Akun</button>`
+    };
+    function showModal(type) {
+      const modalBox = document.getElementById('modal-content');
+      if (type === 'delete') {
+        modalBox.classList.add('delete-modal');
+      } else {
+        modalBox.classList.remove('delete-modal');
+      }
+      document.getElementById('modal-body').innerHTML = modalContent[type] || '<p>Content not found.</p>';
+      document.getElementById('modal').classList.add('modal-active');
+    }
+    function closeModal() {
+      document.getElementById('modal').classList.remove('modal-active');
+      document.getElementById('modal-body').innerHTML = '';
+      document.getElementById('modal-content').classList.remove('delete-modal');
+    }
+    function goHome() { window.location.href = "home.html"; }
+    window.addEventListener('keydown', e => { if(e.key==="Escape"){ closeModal(); } });
+    document.getElementById('modal').addEventListener('click', e => { if(e.target===e.currentTarget){ closeModal(); }});
+  </script>
 </body>
 </html>
