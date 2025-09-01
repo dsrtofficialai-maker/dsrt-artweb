@@ -1,37 +1,28 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Remove Background — DSRT</title>
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Remove BG — DSRT</title>
 <style>
-  body { margin:0; font-family:'Inter',sans-serif; background:#041017; color:#eafaf9;}
-  header {display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#0d2a30;border-bottom:2px solid #00ffd5;}
-  header h1 {font-size:1.2rem;color:#00ffd5;}
-  header button {background:none;border:none;color:#ffcb05;font-weight:bold;cursor:pointer;font-size:1rem;}
-  main {padding:20px;display:flex;gap:20px;min-height:calc(100vh - 60px);}
-  .tools {width:220px;background:#0d2a30;border:2px solid #00ffd5;border-radius:12px;padding:12px;}
-  .editor-area {flex:1;background:#112d38;border-radius:12px;border:2px dashed #00ffd5;display:flex;align-items:center;justify-content:center;color:#9fdfe6;}
+:root{--accent:#00ffd5;--panel:#161b22}
+html,body{height:100%}
+body{margin:0;font-family:Inter,system-ui,Arial;background:#0d1117;color:#eafaf9;display:flex;flex-direction:column}
+header{height:48px;display:flex;align-items:center;padding:0 12px;background:var(--panel);border-bottom:1px solid var(--accent)}
+header button{background:none;border:none;color:#ffcb05;font-size:1.4rem;cursor:pointer}
+main{flex:1;display:grid;grid-template-columns:60px 1fr 260px;grid-template-rows:1fr 36px;grid-template-areas:"sidebar canvas panel" "status status status";height:calc(100vh - 48px)}
+.sidebar{grid-area:sidebar;background:var(--panel);border-right:1px solid var(--accent);display:flex;flex-direction:column;align-items:center;padding:10px;gap:12px}
+.canvas-area{grid-area:canvas;display:flex;align-items:center;justify-content:center;padding:12px}
+.canvas-box{width:100%;max-width:900px;height:560px;background:#112d38;border:2px dashed var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.panel{grid-area:panel;background:var(--panel);border-left:1px solid var(--accent);padding:12px}
+.status{grid-area:status;background:#0d2a30;border-top:1px solid var(--accent);display:flex;justify-content:space-between;align-items:center;padding:0 12px;color:var(--accent)}
+@media(max-width:768px){main{grid-template-columns:1fr;grid-template-rows:1fr 60px 220px 36px;grid-template-areas:"canvas" "toolbar" "panel" "status"} .sidebar{grid-area:toolbar;flex-direction:row;border-top:1px solid var(--accent)}}
 </style>
 </head>
 <body>
-  <header>
-    <h1>Remove Background</h1>
-    <button onclick="window.location.href='home.html'">← Kembali</button>
-  </header>
-  <main>
-    <div class="tools">
-      <p><b>Alat Remove BG:</b></p>
-      <ul>
-        <li>AI Auto Remove</li>
-        <li>Manual Eraser</li>
-        <li>Restore Tool</li>
-        <li>Export Transparan</li>
-      </ul>
-    </div>
-    <div class="editor-area">
-      <p>Area remove background (unggah gambar & hapus latar belakang)</p>
-    </div>
-  </main>
+<header><button onclick="location.href='home.html'">✕</button></header>
+<main>
+  <div class="sidebar" aria-hidden="true"><button>Upload</button><button>Auto</button><button>Manual</button></div>
+  <div class="canvas-area"><div class="canvas-box">Drop image here — preview & mask</div></div>
+  <aside class="panel"><h3 style="color:var(--accent)">Tools</h3><label>Refine</label><input type="range"><label>Feather</label><input type="range"></aside>
+  <div class="status"><span>Mode: Auto</span><span>Export: PNG (transparent)</span></div>
+</main>
 </body>
 </html>
