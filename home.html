@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DSRT - Home</title>
+<title>DSRT - Dashboard</title>
 <style>
   :root {
     --accent:#00ffd5;
@@ -11,29 +11,53 @@
     --text-light:#cde9e9;
     --footer-bg:#001f27;
   }
+  html,body {height:100%;}
   body {
     margin:0;
     font-family:'Inter',system-ui,Arial;
     background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
     color:white;
-    min-height:100vh;
     display:flex;
     flex-direction:column;
+    min-height:100vh;
+    overflow-x:hidden;
   }
+  main {flex:1; position:relative; z-index:1; padding-bottom:70px;} /* supaya konten tidak ketutup nav */
+
+  /* BG hujan */
+  .rain{
+    position:fixed; inset:0;
+    z-index:0; pointer-events:none; overflow:hidden;
+  }
+  .drop{
+    position:absolute; top:-150vh;
+    width:2px; background:rgba(0,255,213,.28);
+    animation:fall 6s linear infinite;
+    filter:drop-shadow(0 0 6px rgba(0,255,213,.35));
+  }
+  .drop.d1{left:20%;height:140vh;animation-delay:0s;}
+  .drop.d2{left:40%;height:120vh;animation-delay:1.5s;}
+  .drop.d3{left:60%;height:160vh;animation-delay:3s;}
+  .drop.d4{left:80%;height:130vh;animation-delay:4.5s;}
+  @keyframes fall{to{transform:translateY(300vh);} }
+
   header {
-    background:#0d2a30;
+    background:#0d2a30cc;
     padding:14px 20px;
     text-align:center;
     border-bottom:2px solid var(--accent);
+    position:relative; z-index:1;
   }
   header h1 {margin:0;font-size:1.4rem;color:var(--accent);}
+
   .wrap {
-    flex:1;
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:flex-start;
     padding:20px;
+    position:relative;
+    z-index:1;
   }
   .features {
     display:grid;
@@ -56,13 +80,25 @@
   .icon {font-size:40px;margin-bottom:12px;color:var(--accent);}
   .card h3 {margin:0;color:var(--accent);font-size:1.2rem;}
   .card p {margin-top:8px;font-size:.95rem;}
-  footer {
+
+  /* Bottom nav */
+  .bottom-nav {
+    position:fixed;
+    bottom:0; left:0; right:0;
     background:var(--footer-bg);
-    color:var(--accent);
-    text-align:center;
-    padding:14px;
     border-top:2px solid var(--accent);
+    display:flex;
+    justify-content:space-around;
+    padding:10px 0;
+    z-index:2;
   }
+  .bottom-nav a {
+    color:var(--accent);
+    text-decoration:none;
+    font-size:.9rem;
+    text-align:center;
+  }
+
   @media (max-width:480px){
     .features{gap:14px;}
     .card{padding:14px;}
@@ -75,31 +111,46 @@
 </style>
 </head>
 <body>
-  <header><h1>DSRT Dashboard</h1></header>
-  <div class="wrap">
-    <div class="features">
-      <a class="card" href="editor-foto.html">
-        <div class="icon">🖼️</div>
-        <h3>Editing Foto</h3>
-        <p>Crop, retouch, filter, color grading, dan optimasi gambar.</p>
-      </a>
-      <a class="card" href="editor-video.html">
-        <div class="icon">🎬</div>
-        <h3>Editing Video</h3>
-        <p>Edit, transisi, overlay, render cepat, dan efek profesional.</p>
-      </a>
-      <a class="card" href="editor-logo.html">
-        <div class="icon">🎨</div>
-        <h3>Editing Logo</h3>
-        <p>Buat logo baru, ubah warna, ekspor PNG & vektor.</p>
-      </a>
-      <a class="card" href="editor-removebg.html">
-        <div class="icon">✂️</div>
-        <h3>Remove Background</h3>
-        <p>Hapus background otomatis dengan AI atau manual tool.</p>
-      </a>
-    </div>
+  <!-- BG hujan -->
+  <div class="rain">
+    <span class="drop d1"></span>
+    <span class="drop d2"></span>
+    <span class="drop d3"></span>
+    <span class="drop d4"></span>
   </div>
-  <footer>&copy; 2025 DSRT. All rights reserved.</footer>
+
+  <header><h1>DSRT Dashboard</h1></header>
+
+  <main>
+    <div class="wrap">
+      <div class="features">
+        <a class="card" href="editor-foto.html">
+          <div class="icon">🖼️</div>
+          <h3>Editing Foto</h3>
+          <p>Crop, retouch, filter, color grading, dan optimasi gambar.</p>
+        </a>
+        <a class="card" href="editor-video.html">
+          <div class="icon">🎬</div>
+          <h3>Editing Video</h3>
+          <p>Edit, transisi, overlay, render cepat, dan efek profesional.</p>
+        </a>
+        <a class="card" href="editor-logo.html">
+          <div class="icon">🎨</div>
+          <h3>Editing Logo</h3>
+          <p>Buat logo baru, ubah warna, ekspor PNG & vektor.</p>
+        </a>
+        <a class="card" href="editor-removebg.html">
+          <div class="icon">✂️</div>
+          <h3>Remove Background</h3>
+          <p>Hapus background otomatis dengan AI atau manual tool.</p>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="home.html">🏠<br>Home</a>
+    <a href="profile.html">👤<br>Profile</a>
+  </nav>
 </body>
 </html>
