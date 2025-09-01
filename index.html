@@ -5,199 +5,100 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>DSRT - Digital Smart Revise Technology</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
   :root {
-    --accent: #00ffd5;
-    --border-style: 2px solid var(--accent);
-    --card-bg: #0d2a30;
-    --footer-bg: #001f27;
+    --accent:#00ffd5;
+    --text-light:#cde9e9;
   }
-  body, html {
-    margin: 0; padding: 0; height: 100%;
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: white;
+  body {
+    margin:0;
+    font-family:'Inter',system-ui,Arial;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color:white;
   }
-
-  /* Efek hujan garis vertikal */
-  .hero-bg {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100vh;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
+  header {
+    text-align:center;
+    padding:20px;
+    border-bottom:2px solid var(--accent);
   }
-  .line {
-    position: absolute;
-    background: rgba(0, 255, 213, 0.3);
-    width: 2px;
-    animation: moveLine 6s linear infinite;
-  }
-  .line:nth-child(1) { height: 120vh; left: 20%; animation-delay: 0s; }
-  .line:nth-child(2) { height: 100vh; left: 40%; animation-delay: 2s; }
-  .line:nth-child(3) { height: 140vh; left: 60%; animation-delay: 4s; }
-  .line:nth-child(4) { height: 110vh; left: 80%; animation-delay: 1s; }
-
-  @keyframes moveLine {
-    0% {transform: translateY(-100%);}
-    100% {transform: translateY(100%);}
-  }
-
+  header h1 {margin:0;font-size:1.8rem;color:var(--accent);}
   section.hero {
-    height: 100vh;
-    padding: 0 20px;
-    max-width: 1200px;
-    margin: auto;
-    margin-top: 80px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    position: relative;
-    z-index: 1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:80px 20px 60px;
   }
-
-  .hero .short-logo {
-    font-weight: 900;
-    font-size: 48px;
-    color: var(--accent);
-    letter-spacing: 5px;
-    margin: 0 0 12px 0;
-    user-select: none;
+  section.hero h2 {font-size:2rem;margin:0;color:var(--accent);}
+  section.hero p {font-size:1.1rem;max-width:700px;margin:20px auto;}
+  .cta {
+    background:var(--accent);
+    color:#001f27;
+    border:none;
+    border-radius:14px;
+    padding:12px 28px;
+    font-weight:bold;
+    cursor:pointer;
+    font-size:1.1rem;
+    text-decoration:none;
   }
-  .hero h1 {
-    font-size: 2.8rem;
-    font-weight: 700;
-    line-height: 1.2;
-    margin: 0 0 20px 0;
-    color: var(--accent);
-  }
-  .hero p {
-    font-size: 1.25rem;
-    line-height: 1.5;
-    margin-bottom: 30px;
-    color: #cde9e9;
-    max-width: 600px;
-  }
-  .btn-primary {
-    background: #ffcb05;
-    color: #000;
-    padding: 16px 36px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    border: none;
-    border-radius: 40px;
-    cursor: pointer;
-    width: fit-content;
-    box-shadow: 0 5px 15px rgba(255,203,5,0.6);
-    transition: background 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
-  }
-  .btn-primary:hover { background: #f2a900; }
-
   section.features {
-    max-width: 1200px;
-    margin: 40px auto 60px;
-    padding: 0 20px;
+    padding:40px 20px;
+    max-width:1200px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
   }
-  section.features h2 {
-    text-align: center;
-    color: var(--accent);
-    font-weight: 900;
-    font-size: 2rem;
-    margin-bottom: 24px;
+  .feature {
+    background:#0d2a30;
+    padding:20px;
+    border-radius:14px;
+    border:2px solid var(--accent);
+    text-align:center;
   }
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-    gap: 24px;
-  }
-  .feature-item {
-    background: var(--card-bg);
-    border: var(--border-style);
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    transition: box-shadow .18s ease, transform .18s ease;
-  }
-  .feature-item:hover {
-    box-shadow: 0 12px 30px rgba(0,0,0,0.18);
-    transform: translateY(-6px);
-    border: var(--border-style);
-  }
-  .feature-icon {
-    font-size: 48px;
-    color: var(--accent);
-    margin-bottom: 12px;
-  }
-  .feature-item h3 { color: var(--accent); margin-bottom: 8px; }
-  .feature-item p { color: #cde9e9; }
-
+  .feature h3 {margin:10px 0;color:var(--accent);}
+  .feature p {color:var(--text-light);}
   footer {
-    background: var(--footer-bg);
-    color: var(--accent);
-    padding: 20px 0;
-    text-align: center;
-    font-weight: 700;
-    border-top: var(--border-style);
+    text-align:center;
+    padding:16px;
+    border-top:2px solid var(--accent);
+    background:#001f27;
+    color:var(--accent);
   }
-
-  @media (max-width: 480px) {
-    .hero { padding: 0 20px; text-align: center; margin-top: 100px; }
-    .hero .short-logo { font-size: 36px; letter-spacing: 4px; margin-bottom: 8px; }
-    .hero h1 { font-size: 1.8rem; margin-bottom: 16px; }
-    .hero p { max-width: 100%; font-size: 1.1rem; margin-bottom: 25px; }
-    .btn-primary { padding: 14px 30px; font-size: 1rem; }
-    .features-grid { gap: 14px; }
-    .feature-item { padding: 14px; }
-  }
-
-  /* Desktop Fix */
   @media (min-width:1024px) {
-    section.hero {
-      height: auto;             
-      padding: 80px 100px 60px; 
-      max-width: 1400px;        
-    }
-    section.features {
-      max-width: 1400px;
-      padding: 0 100px;
-      margin-top: 30px;
-    }
+    section.hero {padding:100px 80px 80px;}
+    section.features {max-width:100%;padding:0 80px;}
   }
 </style>
 </head>
 <body>
-  <!-- Background effect -->
-  <div class="hero-bg">
-    <div class="line"></div>
-    <div class="line"></div>
-    <div class="line"></div>
-    <div class="line"></div>
-  </div>
-
+  <header>
+    <h1>DSRT - Digital Smart Revise Technology</h1>
+  </header>
   <section class="hero">
-    <div class="short-logo">DSRT</div>
-    <h1>Digital Smart Revise Technology</h1>
-    <p>Menghadirkan solusi digital pintar untuk transformasi bisnis yang efisien dan inovatif.</p>
-    <a class="btn-primary" href="home.html">Coba Sekarang</a>
+    <h2>Transformasi Digital dengan DSRT</h2>
+    <p>Solusi editing modern mulai dari foto, video, logo, hingga remove background secara cepat dan cerdas.</p>
+    <a href="home.html" class="cta">Coba Sekarang</a>
   </section>
-
-  <section class="features" aria-label="Fitur Unggulan DSRT">
-    <h2>Fitur Unggulan Kami</h2>
-    <div class="features-grid">
-      <div class="feature-item"><div class="feature-icon">⚙️</div><h3>Otomatisasi Cerdas</h3><p>Mempermudah proses bisnis dengan teknologi AI yang otomatis dan efisien.</p></div>
-      <div class="feature-item"><div class="feature-icon">🔒</div><h3>Keamanan Tinggi</h3><p>Data dan privasi Anda dijaga dengan standar keamanan terbaik.</p></div>
-      <div class="feature-item"><div class="feature-icon">⚡</div><h3>Performa Cepat</h3><p>Respon sistem yang cepat dan stabil untuk kelancaran operasional.</p></div>
-      <div class="feature-item"><div class="feature-icon">📈</div><h3>Analitik Mendalam</h3><p>Insight bisnis yang akurat untuk pengambilan keputusan yang tepat.</p></div>
+  <section class="features">
+    <div class="feature">
+      <h3>Foto</h3>
+      <p>Edit dan optimasi gambar dengan mudah.</p>
+    </div>
+    <div class="feature">
+      <h3>Video</h3>
+      <p>Editing video cepat dan profesional.</p>
+    </div>
+    <div class="feature">
+      <h3>Logo</h3>
+      <p>Buat dan sesuaikan logo modern.</p>
+    </div>
+    <div class="feature">
+      <h3>Remove BG</h3>
+      <p>Hapus background otomatis dengan AI.</p>
     </div>
   </section>
-
-  <footer>
-    &copy; 2025 DSRT - Digital Smart Revise Technology. All rights reserved.
-  </footer>
+  <footer>&copy; 2025 DSRT. All rights reserved.</footer>
 </body>
 </html>
