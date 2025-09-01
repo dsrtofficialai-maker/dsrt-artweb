@@ -1,61 +1,45 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>DSRT Editor</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DSRT Editor - Animated Submenu</title>
 <style>
-:root{--accent:#00ffd5;--bg:#0b1520;--panel:#161b22}
-html,body{height:100%}
-body{margin:0;font-family:Inter,system-ui,Arial;background:#0d1117;color:#eafaf9;display:flex;flex-direction:column;height:100dvh}
+:root{--accent:#00ffd5;--panel:#161b22}
+body{margin:0;font-family:Inter,system-ui,Arial;background:#0d1117;color:#eafaf9;display:flex;flex-direction:column;height:100vh;overflow-x:hidden}
 header{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:var(--panel);border-bottom:1px solid var(--accent)}
-header .left{display:flex;align-items:center;gap:10px}
 header button{background:none;border:none;color:#ffcb05;font-size:1.4rem;cursor:pointer}
-header .actions button{background:none;border:none;color:var(--accent);margin-left:8px;cursor:pointer}
 main{flex:1;display:grid;grid-template-columns:70px 1fr 280px;grid-template-rows:1fr 36px;grid-template-areas:"sidebar canvas panel" "status status status";height:calc(100vh - 48px)}
-.sidebar {
-  grid-area: sidebar;
-  background: var(--panel);
-  border-right: 1px solid var(--accent);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 12px 6px;
-  gap: 16px;
-  overflow-y: auto;
-}
-.sidebar button {
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-size: 1.9rem;
-  cursor: pointer;
-  transition: transform .15s, color .15s;
-}
-.sidebar button:hover { color: #00e3be; transform: scale(1.2); }
-.submenu { display:none; flex-direction: column; gap:4px; margin-left:12px; }
-.submenu button { font-size:1rem; text-align:left; padding-left:6px; }
-canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;width:100%;max-width:960px;height:560px}
+.sidebar{grid-area:sidebar;background:var(--panel);border-right:1px solid var(--accent);display:flex;flex-direction:column;align-items:center;padding:4px;gap:4px;overflow-y:auto;position:relative;z-index:200;transition:left 0.3s ease}
+.sidebar button{background:none;border:none;color:var(--accent);font-size:1.8rem;cursor:pointer;width:100%;text-align:left;transition:0.15s;display:flex;justify-content:space-between;align-items:center}
+.sidebar button:hover{color:#00e3be}
+.submenu{max-height:0;overflow:hidden;flex-direction:column;padding-left:12px;gap:2px;transition:max-height 0.3s ease}
+.submenu.open{max-height:1000px}
+.submenu button{text-align:left;font-size:1.2rem;padding:4px}
+.arrow{transition:transform 0.3s ease;display:inline-block;margin-left:6px;}
+.arrow.open{transform:rotate(90deg);}
 .panel{grid-area:panel;background:var(--panel);border-left:1px solid var(--accent);padding:12px;overflow:auto}
 .panel h3{color:var(--accent);margin:0 0 12px}
+.canvas-area{grid-area:canvas;display:flex;align-items:center;justify-content:center;padding:12px}
+canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;width:100%;max-width:960px;height:560px}
 .status{grid-area:status;background:#0d2a30;border-top:1px solid var(--accent);display:flex;justify-content:space-between;align-items:center;padding:0 12px;color:var(--accent)}
 @media(max-width:768px){
-  main{grid-template-columns:1fr;grid-template-rows:1fr 60px 220px 36px;grid-template-areas:"canvas" "toolbar" "panel" "status"}
-  .sidebar{grid-area:toolbar;flex-direction:row;justify-content:space-around;border-right:none;border-top:1px solid var(--accent);padding:8px}
-  .panel{grid-area:panel;border-left:none;border-top:1px solid var(--accent);height:220px}
-  canvas{height:100%;max-width:none}
+  main{grid-template-columns:50px 1fr;grid-template-rows:1fr 36px;grid-template-areas:"canvas canvas" "status status"}
+  .sidebar{position:fixed;left:-200px;top:48px;width:200px;height:calc(100vh-48px);flex-direction:column;padding:8px;border-right:1px solid var(--accent);z-index:300}
+  .sidebar.show{left:0}
+  .canvas-area{padding:8px}
+  .panel{position:fixed;right:0;top:48px;width:200px;height:calc(100vh-48px);border-left:1px solid var(--accent);padding:8px;overflow:auto;background:var(--panel);z-index:300}
 }
-@media(min-width:1280px){canvas{max-width:1100px;height:680px}.panel{padding:18px}}
 </style>
 </head>
 <body>
 <header>
-  <div class="left">
-    <button onclick="location.href='home.html'">✕</button>
-    <input type="file" id="upload" accept="image/*" style="display:none">
+  <div>
+    <button onclick="toggleSidebar()">☰</button>
+    <input type="file" id="upload" style="display:none">
     <button onclick="document.getElementById('upload').click()">📂</button>
   </div>
-  <div class="actions">
+  <div>
     <button onclick="undo()">Undo</button>
     <button onclick="redo()">Redo</button>
     <button onclick="saveImage()">Save</button>
@@ -64,118 +48,92 @@ canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;wid
 </header>
 
 <main>
-  <!-- === Sidebar lengkap === -->
-  <div class="sidebar">
-    <!-- EXISTING TOOLS -->
-    <button title="Select" onclick="setTool('select')">🖱️</button>
-    <button title="Crop" onclick="setTool('crop')">✂️</button>
-    <button title="Brush" onclick="setTool('brush')">🖌️</button>
-    <button title="Eraser" onclick="setTool('eraser')">🩹</button>
-    <button title="Fill" onclick="setTool('fill')">🪣</button>
-    <button title="Text" onclick="setTool('text')">🔤</button>
-    <button title="Shapes" onclick="setTool('shapes')">⬛</button>
-    <button title="Resize" onclick="setTool('resize')">↔️</button>
-    <button title="Rotate" onclick="setTool('rotate')">🔄</button>
-    <button title="Flip" onclick="setTool('flip')">↕️</button>
-    <button title="Zoom" onclick="setTool('zoom')">🔍</button>
-    <button title="Filter" onclick="setTool('filter')">🎨</button>
-    <button title="Adjust" onclick="setTool('adjust')">🌈</button>
-    <button title="Gradient" onclick="setTool('gradient')">🟦</button>
-    <button title="Layers" onclick="setTool('layers')">📑</button>
-    <button title="Group" onclick="setTool('group')">📦</button>
-    <button title="Lock" onclick="setTool('lock')">🔒</button>
-    <button title="Duplicate" onclick="setTool('duplicate')">📄</button>
-    <button title="Delete" onclick="setTool('delete')">🗑️</button>
-    <button title="AI Tools" onclick="setTool('ai')">🤖</button>
-    <button title="Stickers" onclick="setTool('stickers')">⭐</button>
-    <button title="Elements" onclick="setTool('elements')">📐</button>
-
-    <!-- ===================== SUBMENU TAMBAHAN ===================== -->
-    <!-- Rotate -->
-    <button onclick="toggleSubmenu('rotateSubmenu')">🔄 Rotate Options</button>
-    <div id="rotateSubmenu" class="submenu">
-      <button onclick="selectTool('Rotate 90°')">90°</button>
-      <button onclick="selectTool('Rotate 180°')">180°</button>
-      <button onclick="selectTool('Rotate 270°')">270°</button>
-      <button onclick="selectTool('Rotate 360°')">360°</button>
+  <div class="sidebar" id="sidebar">
+    <!-- Basic -->
+    <button onclick="toggleSubmenuWithArrow('basicSub','basicArrow')">🛠️ Basic <span id="basicArrow" class="arrow">▶</span></button>
+    <div id="basicSub" class="submenu">
+      <button onclick="selectTool('Select')">Select</button>
+      <button onclick="selectTool('Crop')">Crop</button>
+      <button onclick="selectTool('Brush')">Brush</button>
+      <button onclick="selectTool('Eraser')">Eraser</button>
+      <button onclick="selectTool('Fill')">Fill</button>
+      <button onclick="selectTool('Text')">Text</button>
+      <button onclick="selectTool('Shapes')">Shapes</button>
     </div>
 
-    <!-- Flip -->
-    <button onclick="toggleSubmenu('flipSubmenu')">↕️ Flip Options</button>
-    <div id="flipSubmenu" class="submenu">
-      <button onclick="selectTool('Flip Horizontal')">Horizontal</button>
-      <button onclick="selectTool('Flip Vertical')">Vertical</button>
+    <!-- Transform -->
+    <button onclick="toggleSubmenuWithArrow('transformSub','transformArrow')">🔄 Transform <span id="transformArrow" class="arrow">▶</span></button>
+    <div id="transformSub" class="submenu">
+      <button onclick="selectTool('Resize')">Resize</button>
+      <button onclick="toggleSubmenuWithArrow('rotateSub','rotateArrow')">Rotate <span id="rotateArrow" class="arrow">▶</span></button>
+      <div id="rotateSub" class="submenu">
+        <button onclick="selectTool('Rotate 90°')">90°</button>
+        <button onclick="selectTool('Rotate 180°')">180°</button>
+        <button onclick="selectTool('Rotate 270°')">270°</button>
+        <button onclick="selectTool('Rotate 360°')">360°</button>
+      </div>
+      <button onclick="toggleSubmenuWithArrow('flipSub','flipArrow')">Flip <span id="flipArrow" class="arrow">▶</span></button>
+      <div id="flipSub" class="submenu">
+        <button onclick="selectTool('Flip Horizontal')">Horizontal</button>
+        <button onclick="selectTool('Flip Vertical')">Vertical</button>
+      </div>
+      <button onclick="selectTool('Zoom')">Zoom</button>
     </div>
 
-    <!-- Export -->
-    <button onclick="toggleSubmenu('exportSubmenu')">💾 Export / HD</button>
-    <div id="exportSubmenu" class="submenu">
-      <button onclick="selectTool('JPG Low')">JPG Low</button>
-      <button onclick="selectTool('PNG Low')">PNG Low</button>
-      <button onclick="selectTool('HD 1280x720')">HD</button>
-      <button onclick="selectTool('Full HD 1920x1080')">Full HD</button>
-      <button onclick="selectTool('2K 2560x1440')">2K</button>
-      <button onclick="selectTool('4K 3840x2160')">4K</button>
-      <button onclick="selectTool('8K 7680x4320')">8K</button>
-      <button onclick="selectTool('RAW Original')">RAW Original</button>
-    </div>
-
-    <!-- Filters -->
-    <button onclick="toggleSubmenu('filtersSubmenu')">🎨 Filters</button>
-    <div id="filtersSubmenu" class="submenu">
+    <!-- Effects -->
+    <button onclick="toggleSubmenuWithArrow('effectsSub','effectsArrow')">🎨 Effects <span id="effectsArrow" class="arrow">▶</span></button>
+    <div id="effectsSub" class="submenu">
       <button onclick="selectTool('B/W')">B/W</button>
       <button onclick="selectTool('Sepia')">Sepia</button>
       <button onclick="selectTool('Vintage')">Vintage</button>
       <button onclick="selectTool('HDR')">HDR</button>
       <button onclick="selectTool('Cinematic')">Cinematic</button>
+      <button onclick="selectTool('Brightness')">Brightness</button>
+      <button onclick="selectTool('Contrast')">Contrast</button>
+      <button onclick="selectTool('Saturation')">Saturation</button>
+      <button onclick="selectTool('Gradient')">Gradient</button>
     </div>
 
-    <!-- Adjust -->
-    <button onclick="toggleSubmenu('adjustSubmenu')">🌈 Adjust</button>
-    <div id="adjustSubmenu" class="submenu">
-      <button onclick="selectTool('Brightness +10%')">Brightness +10%</button>
-      <button onclick="selectTool('Contrast +10%')">Contrast +10%</button>
-      <button onclick="selectTool('Saturation +10%')">Saturation +10%</button>
+    <!-- Layers -->
+    <button onclick="toggleSubmenuWithArrow('layersSub','layersArrow')">📑 Layers <span id="layersArrow" class="arrow">▶</span></button>
+    <div id="layersSub" class="submenu">
+      <button onclick="selectTool('Layers')">Layers</button>
+      <button onclick="selectTool('Group')">Group</button>
+      <button onclick="selectTool('Lock')">Lock</button>
+      <button onclick="selectTool('Duplicate')">Duplicate</button>
+      <button onclick="selectTool('Delete')">Delete</button>
     </div>
 
-    <!-- Super Resolution -->
-    <button onclick="toggleSubmenu('superResSubmenu')">🔝 Super Resolution</button>
-    <div id="superResSubmenu" class="submenu">
-      <button onclick="selectTool('2K Upscale')">2K</button>
-      <button onclick="selectTool('4K Upscale')">4K</button>
-      <button onclick="selectTool('8K Upscale')">8K</button>
+    <!-- Premium -->
+    <button onclick="toggleSubmenuWithArrow('premiumSub','premiumArrow')">🌟 Premium <span id="premiumArrow" class="arrow">▶</span></button>
+    <div id="premiumSub" class="submenu">
+      <button onclick="selectTool('2K Upscale')">2K Upscale</button>
+      <button onclick="selectTool('4K Upscale')">4K Upscale</button>
+      <button onclick="selectTool('8K Upscale')">8K Upscale</button>
       <button onclick="selectTool('RAW Original')">RAW Original</button>
-      <button onclick="selectTool('Batch Export')">Batch Export</button>
-    </div>
-
-    <!-- AI Tools -->
-    <button onclick="toggleSubmenu('aiSubmenu')">🤖 AI Tools</button>
-    <div id="aiSubmenu" class="submenu">
-      <button onclick="selectTool('Generative Filter 1')">Generative 1</button>
-      <button onclick="selectTool('Generative Filter 2')">Generative 2</button>
+      <button onclick="selectTool('AI Generative 1')">AI 1</button>
+      <button onclick="selectTool('AI Generative 2')">AI 2</button>
       <button onclick="selectTool('Style Transfer')">Style Transfer</button>
-    </div>
-
-    <!-- Extras -->
-    <button onclick="toggleSubmenu('extrasSubmenu')">⭐ / 📐 Extras</button>
-    <div id="extrasSubmenu" class="submenu">
-      <button onclick="selectTool('Add Stickers')">Stickers</button>
-      <button onclick="selectTool('Add Elements')">Elements</button>
+      <button onclick="selectTool('Export JPG')">Export JPG</button>
+      <button onclick="selectTool('Export PNG')">Export PNG</button>
+      <button onclick="selectTool('HD 1280x720')">HD</button>
+      <button onclick="selectTool('Full HD 1920x1080')">Full HD</button>
+      <button onclick="selectTool('4K 3840x2160')">4K</button>
+      <button onclick="selectTool('8K 7680x4320')">8K</button>
+      <button onclick="selectTool('Stickers')">Stickers</button>
+      <button onclick="selectTool('Elements')">Elements</button>
     </div>
   </div>
 
-  <!-- === Canvas area === -->
   <div class="canvas-area">
     <canvas id="canvasPhoto" width="960" height="560"></canvas>
   </div>
 
-  <!-- === Panel kanan (dinamis) === -->
   <aside class="panel">
     <h3 id="panel-title">Properti</h3>
     <div id="panel-content">Pilih tool untuk melihat pengaturan.</div>
   </aside>
 
-  <!-- === Status bar === -->
   <div class="status">
     <span id="status-res">Resolusi: 960x560</span>
     <span id="status-zoom">Zoom:100%</span>
@@ -183,57 +141,24 @@ canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;wid
 </main>
 
 <script>
-const panelTitle = document.getElementById("panel-title");
-const panelContent = document.getElementById("panel-content");
-let tool = "select";
-
-/* Tetap fungsi lama */
-function setTool(t) {
-  tool = t;
-  panelTitle.textContent = "Properti: " + t;
-  let html = "";
-  switch(t) {
-    case "brush":
-      html = `<label>Ukuran Brush</label><input type="range" min="1" max="50" value="10">
-              <label>Warna</label><input type="color" value="#00ffd5">`;
-      break;
-    case "text":
-      html = `<label>Teks</label><input type="text" placeholder="Tulis teks">
-              <label>Ukuran</label><input type="number" value="24">`;
-      break;
-    case "shapes":
-      html = `<label>Bentuk</label><select><option>Persegi</option><option>Lingkaran</option></select>`;
-      break;
-    case "filter":
-      html = `<label>Brightness</label><input type="range" min="0" max="200" value="100">
-              <label>Contrast</label><input type="range" min="0" max="200" value="100">`;
-      break;
-    case "layers":
-      html = `<p>Layer list akan tampil di sini.</p>`;
-      break;
-    default:
-      html = "<p>Tidak ada pengaturan.</p>";
-  }
-  panelContent.innerHTML = html;
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('show');
 }
-
-/* Placeholder fungsi */
+function toggleSubmenuWithArrow(subId, arrowId){
+  const submenu = document.getElementById(subId);
+  const arrow = document.getElementById(arrowId);
+  submenu.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+function selectTool(name){
+  document.getElementById('panel-title').textContent = "Properti: " + name;
+  document.getElementById('panel-content').innerHTML = `<p>Pengaturan untuk <b>${name}</b> akan muncul di sini.</p>`;
+  if(window.innerWidth <= 768){ document.getElementById('sidebar').classList.remove('show'); }
+}
 function undo(){alert("Undo belum aktif");}
 function redo(){alert("Redo belum aktif");}
-function saveImage(){alert("Save ke server belum aktif");}
+function saveImage(){alert("Save belum aktif");}
 function exportImage(){alert("Export belum aktif");}
-
-/* Fungsi toggle submenu tambahan */
-function toggleSubmenu(id){
-  const sub = document.getElementById(id);
-  sub.style.display = (sub.style.display === "flex") ? "none" : "flex";
-}
-
-/* Fungsi selectTool submenu */
-function selectTool(name){
-  panelTitle.textContent = "Properti: " + name;
-  panelContent.innerHTML = `<p>Pengaturan untuk <b>${name}</b> akan muncul di sini.</p>`;
-}
 </script>
 </body>
 </html>
