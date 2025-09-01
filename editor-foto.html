@@ -1,65 +1,187 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Editor Foto — DSRT</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Editor Foto - DSRT</title>
 <style>
-:root{--accent:#00ffd5;--bg:#0b1520;--panel:#161b22}
-html,body{height:100%}
-body{margin:0;font-family:Inter,system-ui,Arial;background:#0d1117;color:#eafaf9;display:flex;flex-direction:column;height:100dvh}
-header{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:var(--panel);border-bottom:1px solid var(--accent)}
-header .left{display:flex;align-items:center;gap:10px}
-header button{background:none;border:none;color:#ffcb05;font-size:1.4rem;cursor:pointer}
-header .actions button{background:none;border:none;color:var(--accent);margin-left:8px;cursor:pointer}
-main{flex:1;display:grid;grid-template-columns:60px 1fr 260px;grid-template-rows:1fr 36px;grid-template-areas:"sidebar canvas panel" "status status status";height:calc(100vh - 48px)}
-.sidebar{grid-area:sidebar;background:var(--panel);border-right:1px solid var(--accent);display:flex;flex-direction:column;align-items:center;padding:10px 6px;gap:12px}
-.sidebar button{background:none;border:none;color:var(--accent);font-size:1.2rem;cursor:pointer}
-.canvas-area{grid-area:canvas;display:flex;align-items:center;justify-content:center;background:#071017;padding:12px}
-canvas{background:#112d38;border:2px dashed var(--accent);border-radius:10px;width:100%;max-width:960px;height:560px}
-.panel{grid-area:panel;background:var(--panel);border-left:1px solid var(--accent);padding:12px;overflow:auto}
-.panel h3{color:var(--accent);margin:0 0 12px}
-.status{grid-area:status;background:#0d2a30;border-top:1px solid var(--accent);display:flex;justify-content:space-between;align-items:center;padding:0 12px;color:var(--accent)}
-/* MOBILE */
-@media(max-width:768px){
-  main{grid-template-columns:1fr;grid-template-rows:1fr 60px 220px 36px;grid-template-areas:"canvas" "toolbar" "panel" "status"}
-  .sidebar{grid-area:toolbar;flex-direction:row;justify-content:space-around;border-right:none;border-top:1px solid var(--accent);padding:8px}
-  .panel{grid-area:panel;border-left:none;border-top:1px solid var(--accent);height:220px}
-  canvas{height:100%;max-width:none}
-}
-/* LARGE */
-@media(min-width:1280px){canvas{max-width:1100px;height:680px}.panel{padding:18px}}
+  :root {
+    --accent: #00ffd5;
+    --bg-dark: #0d2a30;
+    --panel: #112d38;
+    --text-light: #cde9e9;
+  }
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-dark);
+    color: white;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    border-bottom: 1.5px solid var(--accent);
+    background: #082026;
+  }
+  header button {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: var(--accent);
+    cursor: pointer;
+  }
+
+  .editor {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Sidebar kiri (tools) */
+  .tools {
+    width: 80px;
+    background: var(--panel);
+    border-right: 1px solid #0f3b46;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    gap: 18px;
+    overflow-y: auto;
+  }
+  .tools::-webkit-scrollbar { width: 6px; }
+  .tools::-webkit-scrollbar-thumb { background: #0f3b46; border-radius: 6px; }
+  .tools button {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 2rem;   /* 🔹 lebih besar */
+    cursor: pointer;
+    transition: .15s;
+  }
+  .tools button:hover { color: var(--accent); }
+
+  /* Canvas tengah */
+  .canvas-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: repeating-conic-gradient(#1e3d44 0% 25%, #152c33 0% 50%) 50% / 20px 20px;
+    position: relative;
+  }
+  .canvas {
+    width: 70%;
+    max-width: 900px;
+    aspect-ratio: 16/9;
+    background: white;
+    border: 2px dashed var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #444;
+  }
+
+  /* Sidebar kanan (properties) */
+  .properties {
+    width: 280px;
+    background: var(--panel);
+    border-left: 1px solid #0f3b46;
+    padding: 12px;
+    overflow-y: auto;
+  }
+  .properties h3 {
+    color: var(--accent);
+    margin: 10px 0;
+    font-size: 1.05rem;
+  }
+  .properties label {
+    display: block;
+    font-size: .9rem;
+    margin: 8px 0 4px;
+  }
+  .properties input[type="range"],
+  .properties input[type="color"],
+  .properties select {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  /* Mobile mode */
+  @media (max-width: 768px) {
+    .tools { 
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100%;
+      height: 64px;
+      flex-direction: row;
+      justify-content: space-around;
+      border-top: 1px solid #0f3b46;
+      overflow-y: hidden;
+    }
+    .tools button { font-size: 1.8rem; }
+    .properties { display: none; }
+    .canvas { width: 90%; }
+  }
 </style>
 </head>
 <body>
-<header>
-  <div class="left"><button onclick="location.href='home.html'">✕</button></div>
-  <div class="actions">
-    <button>Undo</button><button>Redo</button><button>Save</button><button>Export</button>
+  <header>
+    <button onclick="goBack()">✕</button>
+  </header>
+
+  <div class="editor">
+    <!-- Sidebar kiri -->
+    <div class="tools">
+      <button title="Pilih">🖱️</button>
+      <button title="Crop">✂️</button>
+      <button title="Brush">🖌️</button>
+      <button title="Teks">🔤</button>
+      <button title="Shape">⬛</button>
+      <button title="Filter">🎨</button>
+      <button title="Eraser">🩹</button>
+      <button title="Layers">📑</button>
+      <button title="Undo">↩️</button>
+      <button title="Redo">↪️</button>
+      <button title="Zoom">🔍</button>
+      <button title="Rotate">🔄</button>
+      <button title="Settings">⚙️</button>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas-area">
+      <div class="canvas">Canvas Foto</div>
+    </div>
+
+    <!-- Sidebar kanan -->
+    <div class="properties">
+      <h3>Properti</h3>
+      <label>Layer</label>
+      <select>
+        <option>Background</option>
+        <option>Layer 1</option>
+      </select>
+
+      <label>Ukuran Brush</label>
+      <input type="range" min="1" max="100">
+
+      <label>Opacity</label>
+      <input type="range" min="0" max="100">
+
+      <label>Warna</label>
+      <input type="color" value="#00ffd5">
+    </div>
   </div>
-</header>
 
-<main>
-  <div class="sidebar" aria-hidden="true">
-    <button title="Select">🖱️</button>
-    <button title="Crop">✂️</button>
-    <button title="Brush">🖌️</button>
-    <button title="Text">🔤</button>
-    <button title="Shapes">⬛</button>
-  </div>
-
-  <div class="canvas-area">
-    <canvas id="canvasPhoto" aria-label="Editor Foto"></canvas>
-  </div>
-
-  <aside class="panel" aria-label="Properti">
-    <h3>Properti</h3>
-    <label>Warna</label><input type="color" value="#00ffd5">
-    <label>Ukuran Brush</label><input type="range" min="1" max="50" value="10">
-    <label>Opacity</label><input type="range" min="0" max="100" value="100">
-  </aside>
-
-  <div class="status"><span>Resolusi: 1920x1080</span><span>Zoom:100%</span></div>
-</main>
+  <script>
+    function goBack() {
+      window.location.href = "home.html";
+    }
+  </script>
 </body>
 </html>
