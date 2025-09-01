@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Remove Background — DSRT</title>
+<style>
+  body { margin:0; font-family:'Inter',sans-serif; background:#041017; color:#eafaf9;}
+  header {display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#0d2a30;border-bottom:2px solid #00ffd5;}
+  header h1 {font-size:1.2rem;color:#00ffd5;}
+  header button {background:none;border:none;color:#ffcb05;font-weight:bold;cursor:pointer;font-size:1rem;}
+  main {padding:20px;display:flex;gap:20px;min-height:calc(100vh - 60px);}
+  .tools {width:220px;background:#0d2a30;border:2px solid #00ffd5;border-radius:12px;padding:12px;}
+  .editor-area {flex:1;background:#112d38;border-radius:12px;border:2px dashed #00ffd5;display:flex;align-items:center;justify-content:center;color:#9fdfe6;}
+</style>
+</head>
+<body>
+  <header>
+    <h1>Remove Background</h1>
+    <button onclick="window.location.href='home.html'">← Kembali</button>
+  </header>
+  <main>
+    <div class="tools">
+      <p><b>Alat Remove BG:</b></p>
+      <ul>
+        <li>AI Auto Remove</li>
+        <li>Manual Eraser</li>
+        <li>Restore Tool</li>
+        <li>Export Transparan</li>
+      </ul>
+    </div>
+    <div class="editor-area">
+      <p>Area remove background (unggah gambar & hapus latar belakang)</p>
+    </div>
+  </main>
+</body>
+</html>
